@@ -30,9 +30,12 @@ object Task {
 		}
 	}
 
-	def delete(id: Long) {
+	def delete(id: Long) : Int = {
+		var result = 0;
 		DB.withConnection{
-			implicit c => SQL("delete from task where id = {id}").on('id -> id).executeUpdate()
+			implicit c => 
+				result = SQL("delete from task where id = {id}").on('id -> id).executeUpdate()
 		}
+		return result
 	}
 }

@@ -30,7 +30,7 @@ def readTask(id: Long) = Action {
         }
 }
 ```
->>* Por ultimo, se ha añadido la conversión del objeto Task a JSON de forma rápida:
+>>* Por último, se ha añadido la conversión del objeto Task a JSON de forma rápida:
 ```
 implicit val taskWrites = new Writes[Task] {
     def writes(task: Task) = Json.obj(
@@ -51,7 +51,7 @@ GET /tasks/{id}
     "label": {Descripción de la tarea}
 }
 ```
->>* Si no existe la tarea el servidor devuelve un `ERROR 404` indicando que la tarea no existe:
+>>* Si no existe la tarea el servidor devuelve un `ERROR 404`:
 ```
 Error 404: La tarea con el identificador {id} no existe
 ```
@@ -87,3 +87,40 @@ POST /tasks
 ```
 Error 500: No se ha podido crear la nueva tarea
 ```
+
+>### 3. Listado de tareas
+* Lista todas las tareas en formato JSON
+
+>>#### Implementación
+>>* Se ha modificado el método `tasks` para que devuelva la lista en JSON:
+```
+def tasks = Action {
+    Ok(Json.toJson(Task.all()))
+}
+``` 
+
+>>#### Ejecución
+>>* El formato de la URI es:
+```
+GET /tasks
+```
+>>* La funcionalidad devuelve un lista de tareas en formato JSON:
+```
+[
+   {
+      "id": {id},
+      "label": {Descripción de la tarea}
+   },
+   {
+      "id": {id},
+      "label": {Descripción de la tarea}
+   }
+]
+```
+* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+```
+[]
+```
+
+> #### Enlace a la app en Heroku
+- Enlace a [Heroku](http://shrouded-refuge-4122.herokuapp.com/tasks)

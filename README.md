@@ -64,5 +64,21 @@ GET /tasks
 []
 ```
 
+### 4. Borrado de una tarea
+
+* Borra una tarea basándose en el identificador
+* El formato de la URI es:
+```
+DELETE /tasks/{id}
+```
+* La funcionalidad devuelve un lista de tareas en formato JSON:
+```
+Tarea {id} borrada correctamente"
+```
+* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+```
+Error 404: La tarea con el identificador {id} no existe
+```
+
 > #### Enlace a la app en Heroku
 - Enlace a [Heroku](http://shrouded-refuge-4122.herokuapp.com/tasks)

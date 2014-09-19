@@ -117,9 +117,54 @@ GET /tasks
    }
 ]
 ```
-* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+>>* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
 ```
 []
+```
+
+>### 4. Borrado de una tarea
+* Borra una tarea basándose en el identificador
+
+>>#### Implementación
+>>* Modificada la ruta de acceso al borrado de la tarea
+```
+DELETE  /tasks/:id  controllers.Application.deleteTask(id: Long)
+```
+>>* Modificado en método `delete` de la clase Task para que devuelva un entero:
+```
+def delete(id: Long) : Int = {
+    var result = 0;
+    DB.withConnection{
+        implicit c => 
+            result = SQL("delete from task where id = {id}").on('id -> id).executeUpdate()
+    }
+    return result
+}
+```
+>>* Se ha modificado el método `deleteTask` para que devuelva el resultado de la operación:
+```
+def deleteTask(id: Long) = Action {
+    val resultado : Int = Task.delete(id)
+    if(resultado == 1){
+        Ok("Tarea "+id+" borrada correctamente")
+    } else {
+        NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+    }
+}
+``` 
+
+>>#### Ejecución
+>>* El formato de la URI es:
+```
+DELETE /tasks/{id}
+```
+>>* La funcionalidad devuelve un lista de tareas en formato JSON:
+```
+Tarea {id} borrada correctamente"
+```
+>>* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+```
+Error 404: La tarea con el identificador {id} no existe
 ```
 
 > #### Enlace a la app en Heroku

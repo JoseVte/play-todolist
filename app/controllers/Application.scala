@@ -51,7 +51,11 @@ object Application extends Controller {
    }
 
 	def deleteTask(id: Long) = Action {
-		Task.delete(id)
-		Redirect(routes.Application.tasks)
+		val resultado : Int = Task.delete(id)
+		if(resultado == 1){
+         Ok("Tarea "+id+" borrada correctamente")
+      } else {
+         NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+      }
 	}
 }

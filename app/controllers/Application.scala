@@ -27,7 +27,7 @@ object Application extends Controller {
 	}
 
 	def tasks = Action {
-		Ok(views.html.index(Task.all(), taskForm))
+		Ok(Json.toJson(Task.all()))
 	}
 
    def readTask(id: Long) = Action {

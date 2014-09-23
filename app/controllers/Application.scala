@@ -57,11 +57,11 @@ object Application extends Controller {
   }
 
 	def deleteTask(usuario: String, id: Long) = Action {
-		val resultado : Int = Task.delete(id)
+		val resultado : Int = Task.delete(usuario,id)
 		if(resultado == 1){
       Ok("Tarea "+id+" borrada correctamente")
     } else {
-      NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+      NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
     }
 	}
 }

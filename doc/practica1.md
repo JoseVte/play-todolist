@@ -57,35 +57,60 @@ Error 404: La tarea con el identificador {id} no existe
 ```
 
 >### 2. Creación de nueva tarea
-* Crea una nueva tarea
+* Crea una nueva tarea para un usuario ya existente
 
 >>#### Implementación
->>* Se ha modificado el método `newTask` para que devuelva el JSON o el error:
+>>* Para crear el objeto en la base de datos se utiliza el siguiente metodo de la clase `Task` que permite a partir de una descripcion y un usuario insertar dicha informacion en la base de datos, devolviendo el `id` auto-generado:
 ```
-def newTask = Action { implicit request =>
+def create(label: String, usuario: String) : Long = {
+    var id: Long = 0
+    DB.withConnection{
+        implicit c => 
+            id = SQL("insert into task(label,usuario) values ({label},{usuario})")
+            .on("label" -> label, "usuario" -> usuario).executeInsert().get
+    }
+    return id
+}
+```
+>>* El método `newTask` recibe un usuario por parametro y una descripcion de una tarea por un formulario POST. Devuelve un codigo 201 con un JSON con los datos del nuevo objeto creado:
+```
+def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
-        errors => BadRequest("Error 500: No se ha podido crear la nueva tarea"),
+        errors => BadRequest,
         label => {
-            Task.create(label)
-            val json = Json.toJson(label)
-            Created(json)
+            try{
+                val id = Task.create(label,usuario)
+                val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,label))))
+                Created(json)
+            } catch {
+                case _ => NotFound("Error 404: El usuario "+usuario+" no existe")
+            }
         }
     )
 }
 ```
 
 >>#### Ejecución
->>* El formato de la URI es:
+>>* En la URI se debe especificar el usuario donde se desea crear la nueva tarea:
+```
+POST /{usuario}/tasks
+```
+>>* Si no se especifica ninguno se insertará en el usuario anónimo:
 ```
 POST /tasks
 ```
->>* La funcionalidad devuelve la descripción de la tarea si se ha podido crear en formato JSON:
+>>* La funcionalidad devuelve JSON:
 ```
-{Descripción de la tarea}
+{
+    {usuario}: {
+        "id": {id},
+        "label": {Descripción de la tarea}
+    }
+}
 ```
->>* Si por algún error no se puede crear la tarea se muestra el siguiente error:
+>>* Si el usuario no existe devuelve un `error 404`:
 ```
-Error 500: No se ha podido crear la nueva tarea
+Error 404: El usuario {usuario} no existe
 ```
 
 >### 3. Listado de tareas

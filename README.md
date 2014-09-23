@@ -25,18 +25,26 @@ Error 404: La tarea con el identificador {id} no existe
 
 ### 2. Creación de nueva tarea
 
-* Crea una nueva tarea
-* El formato de la URI es:
+* En la URI se debe especificar el usuario donde se desea crear la nueva tarea:
+```
+POST /{usuario}/tasks
+```
+* Si no se especifica ninguno se insertará en el usuario anónimo:
 ```
 POST /tasks
 ```
-* La funcionalidad devuelve la descripción de la tarea si se ha podido crear en formato JSON:
+* La funcionalidad devuelve JSON:
 ```
-{Descripción de la tarea}
+{
+    {usuario}: {
+        "id": {id},
+        "label": {Descripción de la tarea}
+    }
+}
 ```
-* Si por algún error no se puede crear la tarea se muestra el siguiente error:
+* Si el usuario no existe devuelve un `error 404`:
 ```
-Error 500: No se ha podido crear la nueva tarea
+Error 404: El usuario {usuario} no existe
 ```
 
 ### 3. Listado de tareas

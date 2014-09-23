@@ -8,11 +8,12 @@ GET     /                           controllers.Application.index
 # Rutas para el usuario anonimo         
 GET     /tasks                  	controllers.Application.tasks(usuario: String = "anonimo")
 GET     /tasks/:id               controllers.Application.readTask(id: Long)
-POST    /tasks                  	controllers.Application.newTask
+POST    /tasks                  	controllers.Application.newTask(usuario: String = "anonimo")
 DELETE  /tasks/:id               controllers.Application.deleteTask(id: Long)
 
 # Rutas para usuarios registrados
 GET      /:usuario/tasks         controllers.Application.tasks(usuario: String)
+POST     /:usuario/tasks         controllers.Application.newTask(usuario: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

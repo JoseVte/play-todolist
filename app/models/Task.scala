@@ -24,14 +24,18 @@ object Task {
     implicit c => SQL("select * from task where id = {id}").on("id" -> id).as(task *).head
   }
 
-	def create(label: String) {
+	def create(label: String, usuario: String) : Long = {
+		var id: Long = 0
 		DB.withConnection{
-			implicit c => SQL("insert into task(label) values ({label})").on('label -> label).executeUpdate()
+			implicit c => 
+				id = SQL("insert into task(label,usuario) values ({label},{usuario})")
+				.on("label" -> label, "usuario" -> usuario).executeInsert().get
 		}
+		return id
 	}
 
 	def delete(id: Long) : Int = {
-		var result = 0;
+		var result = 0
 		DB.withConnection{
 			implicit c => 
 				result = SQL("delete from task where id = {id}").on('id -> id).executeUpdate()

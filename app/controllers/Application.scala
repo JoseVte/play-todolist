@@ -32,32 +32,36 @@ object Application extends Controller {
 		Ok(json)
 	}
 
-   def readTask(id: Long) = Action {
-      try{
-         val json = Json.toJson(Task.read(id))
-         Ok(json)
-      } catch {
-         case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe")
-      }
-   }
+  def readTask(id: Long) = Action {
+    try{
+      val json = Json.toJson(Task.read(id))
+      Ok(json)
+    } catch {
+      case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+    }
+  }
 
-	def newTask = Action { implicit request =>
-      taskForm.bindFromRequest.fold(
-         errors => BadRequest("Error 500: No se ha podido crear la nueva tarea"),
-         label => {
-            Task.create(label)
-            val json = Json.toJson(label)
-            Created(json)
-         }
-      )
-   }
+	def newTask(usuario: String) = Action { implicit request =>
+    taskForm.bindFromRequest.fold(
+      errors => BadRequest,
+      label => {
+        try{
+          val id = Task.create(label,usuario)
+          val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,label))))
+          Created(json)
+        } catch {
+          case _ => NotFound("Error 404: El usuario "+usuario+" no existe")
+        }
+      }
+    )
+  }
 
 	def deleteTask(id: Long) = Action {
 		val resultado : Int = Task.delete(id)
 		if(resultado == 1){
-         Ok("Tarea "+id+" borrada correctamente")
-      } else {
-         NotFound("Error 404: La tarea con el identificador "+id+" no existe")
-      }
+      Ok("Tarea "+id+" borrada correctamente")
+    } else {
+      NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+    }
 	}
 }

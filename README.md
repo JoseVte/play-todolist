@@ -6,25 +6,30 @@ Una app de prueba.
 
 ### 1. Consulta de una tarea
 
-* Acceso a una tarea concreta
-* El formato de la URI es:
+* Acceso a una tarea concreta de un usuario concreto
+* El formato de la URI para acceder a la funcionalidad es:
+```
+GET /{usuario}/tasks/{id}
+```
+* Tambien se puede acceder al usuario `anónimo` con la siguiente URI:
 ```
 GET /tasks/{id}
 ```
-* Los datos devueltos están en formato JSON:
+* Los datos devueltos están en formato JSON, indicando primero la id de la tarea y luego la descripción de la misma:
 ```
 {
     "id": {id},
     "label": {Descripción de la tarea}
 }
 ```
-* Si no existe la tarea se muestra el siguiente error:
+* Si no existe la tarea el servidor devuelve un `ERROR 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe en el usuario {usuario}
 ```
 
 ### 2. Creación de nueva tarea
 
+* Crea una nueva tarea para un usuario ya existente
 * En la URI se debe especificar el usuario donde se desea crear la nueva tarea:
 ```
 POST /{usuario}/tasks

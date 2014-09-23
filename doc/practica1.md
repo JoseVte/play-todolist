@@ -5,29 +5,26 @@ En este informe se van a añadir todas las funcionalidades que posee la aplicaci
 ## Funcionalidades
 
 >### 1. Consulta de una tarea
-* Acceso a una tarea concreta
+* Acceso a una tarea concreta de un usuario concreto
 
 >>#### Implementación
->>* Se ha modificado el archivo de rutas agregando la nueva funcionalidad:
+>>* El método `readTask` de la clase `Task` permite acceder a una tarea en concreto con el id y el usuario. Si no existe lanza una excepción de la clase `NoSuchElementException`:
 ```
-GET /tasks/:id  controllers.Application.readTask(id: Long)
-```
->>* Para ello se ha debido de añadir un nuevo método en la clase Task el cual permite obtener solo una tarea identificada por el id:
-```
-def read(id:Long): Task = DB.withConnection{ 
+def read(usuario: String, id: Long): Task = DB.withConnection{ 
     implicit c =>
-        SQL("select * from task where id = {id}").on("id" -> id).as(task *).head
+        SQL("select * from task where id = {id} and usuario = {usuario}")
+        .on("id" -> id, "usuario" -> usuario).as(task *).head
 }
 ```
->>* También se ha agregado un método en el controlador para que se pueda utilizar la funcionalidad:
+>>* En el controlador existe el metodo `read` que recibe el id y el usuario y devuelve el JSON de la tarea en concreto:
 ```
-def readTask(id: Long) = Action {
-        try{
-            val json = Json.toJson(Task.read(id))
-            Ok(json)
-        } catch {
-            case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe")
-        }
+def readTask(usuario: String, id: Long) = Action {
+    try{
+        val json = Json.toJson(Task.read(usuario,id))
+        Ok(json)
+    } catch {
+        case e: NoSuchElementException => NotFound("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)
+    }
 }
 ```
 >>* Por último, se ha añadido la conversión del objeto Task a JSON de forma rápida:
@@ -42,6 +39,10 @@ implicit val taskWrites = new Writes[Task] {
 >>#### Ejecución
 >>* El formato de la URI para acceder a la funcionalidad es:
 ```
+GET /{usuario}/tasks/{id}
+```
+>>* Tambien se puede acceder al usuario `anónimo` con la siguiente URI:
+```
 GET /tasks/{id}
 ```
 >>* Los datos devueltos están en formato JSON, indicando primero la id de la tarea y luego la descripción de la misma:
@@ -53,7 +54,7 @@ GET /tasks/{id}
 ```
 >>* Si no existe la tarea el servidor devuelve un `ERROR 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe en el usuario {usuario}
 ```
 
 >### 2. Creación de nueva tarea

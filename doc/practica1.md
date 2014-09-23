@@ -89,37 +89,52 @@ Error 500: No se ha podido crear la nueva tarea
 ```
 
 >### 3. Listado de tareas
-* Lista todas las tareas en formato JSON
+* Lista todas las tareas de un usuario en formato JSON
 
 >>#### Implementación
->>* Se ha modificado el método `tasks` para que devuelva la lista en JSON:
+>>* Para el acceso a la base de datos se utiliza un metodo de la clase `Task` que permite crear una lista de tareas a partir de un usuario:
 ```
-def tasks = Action {
-    Ok(Json.toJson(Task.all()))
+def all(usuario: String): List[Task] = DB.withConnection{
+    implicit c => SQL("select * from task where usuario = {usuario}").on("usuario" -> usuario).as(task *)
+}
+``` 
+>>* Existe un método `tasks` que recibe un usuario por parámetro y devuelva la lista en JSON de las tareas de dicho usuario:
+```
+def tasks(usuario: String) = Action {
+    val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
+    Ok(json)
 }
 ``` 
 
 >>#### Ejecución
->>* El formato de la URI es:
+>>* En la URI se debe especificar el usuario:
+```
+GET /{usuario}/tasks
+```
+>>* Si no se especifica ninguno se accedera al usuario anónimo:
 ```
 GET /tasks
 ```
->>* La funcionalidad devuelve un lista de tareas en formato JSON:
+>>* La funcionalidad devuelve un lista de las tareas del usuario en formato JSON:
 ```
-[
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   },
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   }
-]
+{
+    {usuario}: [
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        },
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        }
+    ]
+}
 ```
->>* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+>>* Si no hay ninguna tarea en el usuario, o no existe dicho usuario; se devolverá una lista vacía en JSON:
 ```
-[]
+{
+    {usuario}: []
+}
 ```
 
 >### 4. Borrado de una tarea

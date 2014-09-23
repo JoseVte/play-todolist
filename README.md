@@ -41,27 +41,32 @@ Error 500: No se ha podido crear la nueva tarea
 
 ### 3. Listado de tareas
 
-* Lista todas las tareas
+* Lista todas las tareas de un usuario
 * El formato de la URI es:
 ```
-GET /tasks
+GET /{usuario}/tasks
+GET /tasks      << Para el usuario anonimo
 ```
 * La funcionalidad devuelve un lista de tareas en formato JSON:
 ```
-[
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   },
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   }
-]
+{
+    {usuario}: [
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        },
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        }
+    ]
+}
 ```
-* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+* Si no hay ninguna tarea en el usuario, o no existe dicho usuario; se devolverá una lista vacía en JSON:
 ```
-[]
+{
+    {usuario}: []
+}
 ```
 
 ### 4. Borrado de una tarea

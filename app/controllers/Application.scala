@@ -7,6 +7,7 @@ import play.api.data._
 import play.api.data.Forms._
 
 import play.api.libs.json._
+import play.api.libs.json.Json
 
 import models.Task
 
@@ -27,7 +28,8 @@ object Application extends Controller {
 	}
 
 	def tasks(usuario: String) = Action {
-		Ok(Json.toJson(Task.all()))
+    val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
+		Ok(json)
 	}
 
    def readTask(id: Long) = Action {

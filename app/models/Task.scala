@@ -20,9 +20,11 @@ object Task {
 		implicit c => SQL("select * from task where usuario = {usuario}").on("usuario" -> usuario).as(task *)
 	}
 
-  def read(id:Long): Task = DB.withConnection{ 
-    implicit c => SQL("select * from task where id = {id}").on("id" -> id).as(task *).head
-  }
+	def read(usuario: String, id: Long): Task = DB.withConnection{ 
+		implicit c =>
+			SQL("select * from task where id = {id} and usuario = {usuario}")
+			.on("id" -> id, "usuario" -> usuario).as(task *).head
+	}
 
 	def create(label: String, usuario: String) : Long = {
 		var id: Long = 0

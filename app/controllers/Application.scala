@@ -32,12 +32,12 @@ object Application extends Controller {
 		Ok(json)
 	}
 
-  def readTask(id: Long) = Action {
+  def readTask(usuario: String, id: Long) = Action {
     try{
-      val json = Json.toJson(Task.read(id))
+      val json = Json.toJson(Task.read(usuario,id))
       Ok(json)
     } catch {
-      case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+      case e: NoSuchElementException => NotFound("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)
     }
   }
 

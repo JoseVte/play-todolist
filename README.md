@@ -85,17 +85,21 @@ GET /tasks      << Para el usuario anonimo
 ### 4. Borrado de una tarea
 
 * Borra una tarea basándose en el identificador
-* El formato de la URI es:
+* El formato de la URI para borrar es:
+```
+DELETE /{usuario}/tasks/{id}
+```
+* Tambien se permite borrar las tareas para el usuario anonimo
 ```
 DELETE /tasks/{id}
 ```
-* La funcionalidad devuelve un lista de tareas en formato JSON:
+* Cuando se haya borrado correctamente se mostrara el siguiente mensaje:
 ```
-Tarea {id} borrada correctamente"
+Tarea {id} del usuario {usuario} borrada correctamente
 ```
-* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+* Si no hay ninguna tarea que concuerde se devolverá el `error 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
 ```
 
 > #### Enlace a la app en Heroku

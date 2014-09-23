@@ -164,48 +164,48 @@ GET /tasks
 ```
 
 >### 4. Borrado de una tarea
-* Borra una tarea basándose en el identificador
+* Borra una tarea de un usuario basándose en el identificador
 
 >>#### Implementación
->>* Modificada la ruta de acceso al borrado de la tarea
+>>* Para borrar se utiliza el método `delete` de la clase `Task` para que devuelva el numero de filas que se han modificado:
 ```
-DELETE  /tasks/:id  controllers.Application.deleteTask(id: Long)
-```
->>* Modificado en método `delete` de la clase Task para que devuelva un entero:
-```
-def delete(id: Long) : Int = {
-    var result = 0;
+def delete(usuario:String, id: Long) : Int = {
+    var numRows = 0
     DB.withConnection{
         implicit c => 
-            result = SQL("delete from task where id = {id}").on('id -> id).executeUpdate()
+            numRows = SQL("delete from task where id = {id} and usuario = {usuario}").on("id" -> id,"usuario" -> usuario).executeUpdate()
     }
-    return result
+    return numRows
 }
 ```
->>* Se ha modificado el método `deleteTask` para que devuelva el resultado de la operación:
+>>* El método `deleteTask` utiliza el numero de filas modificado para comprobar si se ha borrado con exito:
 ```
-def deleteTask(id: Long) = Action {
-    val resultado : Int = Task.delete(id)
-    if(resultado == 1){
-        Ok("Tarea "+id+" borrada correctamente")
+def deleteTask(usuario: String, id: Long) = Action {
+        val resultado : Int = Task.delete(usuario,id)
+        if(resultado == 1){
+      Ok("Tarea "+id+" borrada correctamente")
     } else {
-        NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+      NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
     }
 }
 ``` 
 
 >>#### Ejecución
->>* El formato de la URI es:
+>>* El formato de la URI para borrar es:
+```
+DELETE /{usuario}/tasks/{id}
+```
+>>* Tambien se permite borrar las tareas para el usuario anonimo
 ```
 DELETE /tasks/{id}
 ```
->>* La funcionalidad devuelve un lista de tareas en formato JSON:
+>>* Cuando se haya borrado correctamente se mostrara el siguiente mensaje:
 ```
-Tarea {id} borrada correctamente"
+Tarea {id} del usuario {usuario} borrada correctamente
 ```
->>* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+>>* Si no hay ninguna tarea que concuerde se devolverá el `error 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
 ```
 
 > #### Enlace a la app en Heroku

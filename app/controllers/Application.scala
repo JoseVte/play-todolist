@@ -23,10 +23,10 @@ object Application extends Controller {
   }
 
 	def index = Action {
-  	Redirect(routes.Application.tasks)
+  	Redirect(routes.Application.tasks("anonimo"))
 	}
 
-	def tasks = Action {
+	def tasks(usuario: String) = Action {
 		Ok(Json.toJson(Task.all()))
 	}
 

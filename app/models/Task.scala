@@ -16,26 +16,32 @@ object Task {
 		}
 	}
 
-	def all(): List[Task] = DB.withConnection{
-		implicit c => SQL("select * from task").as(task *)
+	def all(usuario: String): List[Task] = DB.withConnection{
+		implicit c => SQL("select * from task where usuario = {usuario}").on("usuario" -> usuario).as(task *)
 	}
 
-  def read(id:Long): Task = DB.withConnection{ 
-    implicit c => SQL("select * from task where id = {id}").on("id" -> id).as(task *).head
-  }
-
-	def create(label: String) {
-		DB.withConnection{
-			implicit c => SQL("insert into task(label) values ({label})").on('label -> label).executeUpdate()
-		}
+	def read(usuario: String, id: Long): Task = DB.withConnection{ 
+		implicit c =>
+			SQL("select * from task where id = {id} and usuario = {usuario}")
+			.on("id" -> id, "usuario" -> usuario).as(task *).head
 	}
 
-	def delete(id: Long) : Int = {
-		var result = 0;
+	def create(label: String, usuario: String) : Long = {
+		var id: Long = 0
 		DB.withConnection{
 			implicit c => 
-				result = SQL("delete from task where id = {id}").on('id -> id).executeUpdate()
+				id = SQL("insert into task(label,usuario) values ({label},{usuario})")
+				.on("label" -> label, "usuario" -> usuario).executeInsert().get
 		}
-		return result
+		return id
+	}
+
+	def delete(usuario:String, id: Long) : Int = {
+		var numRows = 0
+		DB.withConnection{
+			implicit c => 
+				numRows = SQL("delete from task where id = {id} and usuario = {usuario}").on("id" -> id,"usuario" -> usuario).executeUpdate()
+		}
+		return numRows
 	}
 }

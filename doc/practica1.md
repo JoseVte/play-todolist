@@ -5,29 +5,26 @@ En este informe se van a añadir todas las funcionalidades que posee la aplicaci
 ## Funcionalidades
 
 >### 1. Consulta de una tarea
-* Acceso a una tarea concreta
+* Acceso a una tarea concreta de un usuario concreto
 
 >>#### Implementación
->>* Se ha modificado el archivo de rutas agregando la nueva funcionalidad:
+>>* El método `readTask` de la clase `Task` permite acceder a una tarea en concreto con el id y el usuario. Si no existe lanza una excepción de la clase `NoSuchElementException`:
 ```
-GET /tasks/:id  controllers.Application.readTask(id: Long)
-```
->>* Para ello se ha debido de añadir un nuevo método en la clase Task el cual permite obtener solo una tarea identificada por el id:
-```
-def read(id:Long): Task = DB.withConnection{ 
+def read(usuario: String, id: Long): Task = DB.withConnection{ 
     implicit c =>
-        SQL("select * from task where id = {id}").on("id" -> id).as(task *).head
+        SQL("select * from task where id = {id} and usuario = {usuario}")
+        .on("id" -> id, "usuario" -> usuario).as(task *).head
 }
 ```
->>* También se ha agregado un método en el controlador para que se pueda utilizar la funcionalidad:
+>>* En el controlador existe el metodo `read` que recibe el id y el usuario y devuelve el JSON de la tarea en concreto:
 ```
-def readTask(id: Long) = Action {
-        try{
-            val json = Json.toJson(Task.read(id))
-            Ok(json)
-        } catch {
-            case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe")
-        }
+def readTask(usuario: String, id: Long) = Action {
+    try{
+        val json = Json.toJson(Task.read(usuario,id))
+        Ok(json)
+    } catch {
+        case e: NoSuchElementException => NotFound("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)
+    }
 }
 ```
 >>* Por último, se ha añadido la conversión del objeto Task a JSON de forma rápida:
@@ -42,6 +39,10 @@ implicit val taskWrites = new Writes[Task] {
 >>#### Ejecución
 >>* El formato de la URI para acceder a la funcionalidad es:
 ```
+GET /{usuario}/tasks/{id}
+```
+>>* Tambien se puede acceder al usuario `anónimo` con la siguiente URI:
+```
 GET /tasks/{id}
 ```
 >>* Los datos devueltos están en formato JSON, indicando primero la id de la tarea y luego la descripción de la misma:
@@ -53,118 +54,158 @@ GET /tasks/{id}
 ```
 >>* Si no existe la tarea el servidor devuelve un `ERROR 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe en el usuario {usuario}
 ```
 
 >### 2. Creación de nueva tarea
-* Crea una nueva tarea
+* Crea una nueva tarea para un usuario ya existente
 
 >>#### Implementación
->>* Se ha modificado el método `newTask` para que devuelva el JSON o el error:
+>>* Para crear el objeto en la base de datos se utiliza el siguiente metodo de la clase `Task` que permite a partir de una descripcion y un usuario insertar dicha informacion en la base de datos, devolviendo el `id` auto-generado:
 ```
-def newTask = Action { implicit request =>
+def create(label: String, usuario: String) : Long = {
+    var id: Long = 0
+    DB.withConnection{
+        implicit c => 
+            id = SQL("insert into task(label,usuario) values ({label},{usuario})")
+            .on("label" -> label, "usuario" -> usuario).executeInsert().get
+    }
+    return id
+}
+```
+>>* El método `newTask` recibe un usuario por parametro y una descripcion de una tarea por un formulario POST. Devuelve un codigo 201 con un JSON con los datos del nuevo objeto creado:
+```
+def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
-        errors => BadRequest("Error 500: No se ha podido crear la nueva tarea"),
+        errors => BadRequest,
         label => {
-            Task.create(label)
-            val json = Json.toJson(label)
-            Created(json)
+            try{
+                val id = Task.create(label,usuario)
+                val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,label))))
+                Created(json)
+            } catch {
+                case _ => NotFound("Error 404: El usuario "+usuario+" no existe")
+            }
         }
     )
 }
 ```
 
 >>#### Ejecución
->>* El formato de la URI es:
+>>* En la URI se debe especificar el usuario donde se desea crear la nueva tarea:
+```
+POST /{usuario}/tasks
+```
+>>* Si no se especifica ninguno se insertará en el usuario anónimo:
 ```
 POST /tasks
 ```
->>* La funcionalidad devuelve la descripción de la tarea si se ha podido crear en formato JSON:
+>>* La funcionalidad devuelve JSON:
 ```
-{Descripción de la tarea}
+{
+    {usuario}: {
+        "id": {id},
+        "label": {Descripción de la tarea}
+    }
+}
 ```
->>* Si por algún error no se puede crear la tarea se muestra el siguiente error:
+>>* Si el usuario no existe devuelve un `error 404`:
 ```
-Error 500: No se ha podido crear la nueva tarea
+Error 404: El usuario {usuario} no existe
 ```
 
 >### 3. Listado de tareas
-* Lista todas las tareas en formato JSON
+* Lista todas las tareas de un usuario en formato JSON
 
 >>#### Implementación
->>* Se ha modificado el método `tasks` para que devuelva la lista en JSON:
+>>* Para el acceso a la base de datos se utiliza un metodo de la clase `Task` que permite crear una lista de tareas a partir de un usuario:
 ```
-def tasks = Action {
-    Ok(Json.toJson(Task.all()))
+def all(usuario: String): List[Task] = DB.withConnection{
+    implicit c => SQL("select * from task where usuario = {usuario}").on("usuario" -> usuario).as(task *)
+}
+``` 
+>>* Existe un método `tasks` que recibe un usuario por parámetro y devuelva la lista en JSON de las tareas de dicho usuario:
+```
+def tasks(usuario: String) = Action {
+    val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
+    Ok(json)
 }
 ``` 
 
 >>#### Ejecución
->>* El formato de la URI es:
+>>* En la URI se debe especificar el usuario:
+```
+GET /{usuario}/tasks
+```
+>>* Si no se especifica ninguno se accedera al usuario anónimo:
 ```
 GET /tasks
 ```
->>* La funcionalidad devuelve un lista de tareas en formato JSON:
+>>* La funcionalidad devuelve un lista de las tareas del usuario en formato JSON:
 ```
-[
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   },
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   }
-]
+{
+    {usuario}: [
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        },
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        }
+    ]
+}
 ```
->>* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+>>* Si no hay ninguna tarea en el usuario, o no existe dicho usuario; se devolverá una lista vacía en JSON:
 ```
-[]
+{
+    {usuario}: []
+}
 ```
 
 >### 4. Borrado de una tarea
-* Borra una tarea basándose en el identificador
+* Borra una tarea de un usuario basándose en el identificador
 
 >>#### Implementación
->>* Modificada la ruta de acceso al borrado de la tarea
+>>* Para borrar se utiliza el método `delete` de la clase `Task` para que devuelva el numero de filas que se han modificado:
 ```
-DELETE  /tasks/:id  controllers.Application.deleteTask(id: Long)
-```
->>* Modificado en método `delete` de la clase Task para que devuelva un entero:
-```
-def delete(id: Long) : Int = {
-    var result = 0;
+def delete(usuario:String, id: Long) : Int = {
+    var numRows = 0
     DB.withConnection{
         implicit c => 
-            result = SQL("delete from task where id = {id}").on('id -> id).executeUpdate()
+            numRows = SQL("delete from task where id = {id} and usuario = {usuario}").on("id" -> id,"usuario" -> usuario).executeUpdate()
     }
-    return result
+    return numRows
 }
 ```
->>* Se ha modificado el método `deleteTask` para que devuelva el resultado de la operación:
+>>* El método `deleteTask` utiliza el numero de filas modificado para comprobar si se ha borrado con exito:
 ```
-def deleteTask(id: Long) = Action {
-    val resultado : Int = Task.delete(id)
-    if(resultado == 1){
-        Ok("Tarea "+id+" borrada correctamente")
+def deleteTask(usuario: String, id: Long) = Action {
+        val resultado : Int = Task.delete(usuario,id)
+        if(resultado == 1){
+      Ok("Tarea "+id+" borrada correctamente")
     } else {
-        NotFound("Error 404: La tarea con el identificador "+id+" no existe")
+      NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
     }
 }
 ``` 
 
 >>#### Ejecución
->>* El formato de la URI es:
+>>* El formato de la URI para borrar es:
+```
+DELETE /{usuario}/tasks/{id}
+```
+>>* Tambien se permite borrar las tareas para el usuario anonimo
 ```
 DELETE /tasks/{id}
 ```
->>* La funcionalidad devuelve un lista de tareas en formato JSON:
+>>* Cuando se haya borrado correctamente se mostrara el siguiente mensaje:
 ```
-Tarea {id} borrada correctamente"
+Tarea {id} del usuario {usuario} borrada correctamente
 ```
->>* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+>>* Si no hay ninguna tarea que concuerde se devolverá el `error 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
 ```
 
 > #### Enlace a la app en Heroku

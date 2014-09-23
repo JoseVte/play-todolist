@@ -6,78 +6,100 @@ Una app de prueba.
 
 ### 1. Consulta de una tarea
 
-* Acceso a una tarea concreta
-* El formato de la URI es:
+* Acceso a una tarea concreta de un usuario concreto
+* El formato de la URI para acceder a la funcionalidad es:
+```
+GET /{usuario}/tasks/{id}
+```
+* Tambien se puede acceder al usuario `anónimo` con la siguiente URI:
 ```
 GET /tasks/{id}
 ```
-* Los datos devueltos están en formato JSON:
+* Los datos devueltos están en formato JSON, indicando primero la id de la tarea y luego la descripción de la misma:
 ```
 {
     "id": {id},
     "label": {Descripción de la tarea}
 }
 ```
-* Si no existe la tarea se muestra el siguiente error:
+* Si no existe la tarea el servidor devuelve un `ERROR 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe en el usuario {usuario}
 ```
 
 ### 2. Creación de nueva tarea
 
-* Crea una nueva tarea
-* El formato de la URI es:
+* Crea una nueva tarea para un usuario ya existente
+* En la URI se debe especificar el usuario donde se desea crear la nueva tarea:
+```
+POST /{usuario}/tasks
+```
+* Si no se especifica ninguno se insertará en el usuario anónimo:
 ```
 POST /tasks
 ```
-* La funcionalidad devuelve la descripción de la tarea si se ha podido crear en formato JSON:
+* La funcionalidad devuelve JSON:
 ```
-{Descripción de la tarea}
+{
+    {usuario}: {
+        "id": {id},
+        "label": {Descripción de la tarea}
+    }
+}
 ```
-* Si por algún error no se puede crear la tarea se muestra el siguiente error:
+* Si el usuario no existe devuelve un `error 404`:
 ```
-Error 500: No se ha podido crear la nueva tarea
+Error 404: El usuario {usuario} no existe
 ```
 
 ### 3. Listado de tareas
 
-* Lista todas las tareas
+* Lista todas las tareas de un usuario
 * El formato de la URI es:
 ```
-GET /tasks
+GET /{usuario}/tasks
+GET /tasks      << Para el usuario anonimo
 ```
 * La funcionalidad devuelve un lista de tareas en formato JSON:
 ```
-[
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   },
-   {
-      "id": {id},
-      "label": {Descripción de la tarea}
-   }
-]
+{
+    {usuario}: [
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        },
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+        }
+    ]
+}
 ```
-* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+* Si no hay ninguna tarea en el usuario, o no existe dicho usuario; se devolverá una lista vacía en JSON:
 ```
-[]
+{
+    {usuario}: []
+}
 ```
 
 ### 4. Borrado de una tarea
 
 * Borra una tarea basándose en el identificador
-* El formato de la URI es:
+* El formato de la URI para borrar es:
+```
+DELETE /{usuario}/tasks/{id}
+```
+* Tambien se permite borrar las tareas para el usuario anonimo
 ```
 DELETE /tasks/{id}
 ```
-* La funcionalidad devuelve un lista de tareas en formato JSON:
+* Cuando se haya borrado correctamente se mostrara el siguiente mensaje:
 ```
-Tarea {id} borrada correctamente"
+Tarea {id} del usuario {usuario} borrada correctamente
 ```
-* Si no hay ninguna tarea se devolverá una lista vacía en JSON:
+* Si no hay ninguna tarea que concuerde se devolverá el `error 404`:
 ```
-Error 404: La tarea con el identificador {id} no existe
+Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
 ```
 
 > #### Enlace a la app en Heroku

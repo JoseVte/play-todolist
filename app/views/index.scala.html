@@ -10,7 +10,7 @@
 			<li>
 				@task.label
 
-				@form(routes.Application.deleteTask(task.id)){
+				@form(routes.Application.deleteTask(usuario,task.id)){
 					<input type="submit" value="Delete">
 				}
 			</li>

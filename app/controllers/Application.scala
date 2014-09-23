@@ -56,7 +56,7 @@ object Application extends Controller {
     )
   }
 
-	def deleteTask(id: Long) = Action {
+	def deleteTask(usuario: String, id: Long) = Action {
 		val resultado : Int = Task.delete(id)
 		if(resultado == 1){
       Ok("Tarea "+id+" borrada correctamente")

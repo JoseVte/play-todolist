@@ -217,5 +217,48 @@ Tarea {id} del usuario {usuario} borrada correctamente
 Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
 ```
 
+>### 5. Borrado de varias tareas segun la fecha
+* Borra una o varias tareas de un usuario basándose en la fecha para finalizar
+
+>>#### Implementación
+>>* Para borrar ñas tareas se utiliza el método `deleteDate` de la clase `Task`, que devuelva el numero de filas que se han modificado:
+```
+def deleteDate(usuario: String, fecha: Date) : Int = {
+    var numRows = 0
+    DB.withConnection{
+        implicit c =>
+            numRows = SQL("delete from task where usuario = {usuario} and fechaFin < {fecha}").on("usuario" -> usuario,"fecha" -> fecha).executeUpdate()
+    }
+    return numRows
+}
+```
+>>* El método `deleteTaskDate` utiliza el numero de filas modificado para enviar un mensaje al usuario:
+```
+def deleteTaskDate(usuario: String, fecha: String) = Action {
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    val fechaParse : Date = formatoURI.parse(fecha)
+    val numRows : Int = Task.deleteDate(usuario,fechaParse)
+    Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
+}
+``` 
+
+>>#### Ejecución
+>>* El formato de la URI para borrar es:
+```
+DELETE /{usuario}/tasks/{fecha}
+```
+>>* También se permite borrar las tareas para el usuario anonimo
+```
+DELETE /tasks/{fecha}
+```
+>>* La fecha debe tener el formato siguiente:
+```
+dd-MM-yyyy  ->  25-9-2014     
+```
+>>* Cuando se hayan borrado correctamente se mostrara el siguiente mensaje:
+```
+Se han borrado {numRows} de tareas del usuario {usuario} hasta la fecha {fecha}
+```
+
 > #### Enlace a la app en Heroku
 - Enlace a [Heroku](http://shrouded-refuge-4122.herokuapp.com/tasks)

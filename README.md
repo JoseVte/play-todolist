@@ -106,5 +106,24 @@ Tarea {id} del usuario {usuario} borrada correctamente
 Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
 ```
 
+### 5. Borrado de varias tareas segun la fecha
+
+* Borra una o varias tareas de un usuario basándose en la fecha para finalizar
+* El formato de la URI para borrar es:
+```
+DELETE /{usuario}/tasks/{fecha}
+```
+* También se permite borrar las tareas para el usuario anonimo
+```
+DELETE /tasks/{fecha}
+```
+* La fecha debe tener el formato siguiente:
+```
+dd-MM-yyyy  ->  25-9-2014     
+```
+* Cuando se hayan borrado correctamente se mostrara el siguiente mensaje:
+```
+Se han borrado {numRows} de tareas del usuario {usuario} hasta la fecha {fecha}
+
 > #### Enlace a la app en Heroku
 - Enlace a [Heroku](http://shrouded-refuge-4122.herokuapp.com/tasks)

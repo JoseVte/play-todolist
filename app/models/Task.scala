@@ -6,13 +6,16 @@ import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 
-case class Task(id: Long, label: String)
+import java.util.Date
+
+case class Task(id: Long, label: String, fechaFin: Option[java.util.Date])
 
 object Task {
 	val task = {
 		get[Long]("id") ~
-		get[String]("label") map{
-			case id~label => Task(id,label)
+		get[String]("label") ~
+		get[Option[java.util.Date]]("fechaFin") map{
+			case id~label~fechaFin => Task(id,label,fechaFin)
 		}
 	}
 

@@ -14,7 +14,11 @@ import models.Task
 object Application extends Controller {
 
 	val taskForm = Form(
-  	"label" -> nonEmptyText
+    mapping(
+      "id" -> ignored(0L),
+      "label" -> nonEmptyText,
+      "fechaFin" -> optional(date("dd/mm/yyyy"))
+    )(Task.apply)(Task.unapply)
 	)
 
   implicit val taskWrites = new Writes[Task] {
@@ -44,10 +48,10 @@ object Application extends Controller {
 	def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
       errors => BadRequest,
-      label => {
+      task => {
         try{
-          val id = Task.create(label,usuario)
-          val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,label))))
+          val id = Task.create(task.label,usuario)
+          val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
           Created(json)
         } catch {
           case _ => NotFound("Error 404: El usuario "+usuario+" no existe")

@@ -15,11 +15,12 @@ GET /{usuario}/tasks/{id}
 ```
 GET /tasks/{id}
 ```
-* Los datos devueltos están en formato JSON, indicando primero la id de la tarea y luego la descripción de la misma:
+* Los datos devueltos están en formato JSON, indicando primero la id de la tarea, la descripción y la fecha de finalización de la misma:
 ```
 {
     "id": {id},
-    "label": {Descripción de la tarea}
+    "label": {Descripción de la tarea},
+    "fechaFin": {Fecha de finalización}
 }
 ```
 * Si no existe la tarea el servidor devuelve un `ERROR 404`:
@@ -43,7 +44,8 @@ POST /tasks
 {
     {usuario}: {
         "id": {id},
-        "label": {Descripción de la tarea}
+        "label": {Descripción de la tarea},
+        "fechaFin": {Fecha de finalización}
     }
 }
 ```
@@ -66,11 +68,13 @@ GET /tasks      << Para el usuario anonimo
     {usuario}: [
         {
             "id": {id},
-            "label": {Descripción de la tarea}
+            "label": {Descripción de la tarea},
+            "fechaFin": {Fecha de finalización}
         },
         {
             "id": {id},
-            "label": {Descripción de la tarea}
+            "label": {Descripción de la tarea},
+            "fechaFin": {Fecha de finalización}
         }
     ]
 }

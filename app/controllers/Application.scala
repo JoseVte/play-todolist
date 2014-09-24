@@ -9,8 +9,6 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.json.Json
 
-import anorm._
-
 import models.Task
 
 object Application extends Controller {

@@ -9,6 +9,8 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.json.Json
 
+import anorm._
+
 import models.Task
 
 object Application extends Controller {
@@ -24,7 +26,8 @@ object Application extends Controller {
   implicit val taskWrites = new Writes[Task] {
     def writes(task: Task) = Json.obj(
       "id" -> task.id,
-      "label" -> task.label)
+      "label" -> task.label,
+      "fechaFin" -> task.fechaFin)
   }
 
 	def index = Action {
@@ -50,11 +53,11 @@ object Application extends Controller {
       errors => BadRequest,
       task => {
         try{
-          val id = Task.create(task.label,usuario)
+          val id = Task.create(task.label,usuario,task.fechaFin)
           val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
           Created(json)
         } catch {
-          case _ => NotFound("Error 404: El usuario "+usuario+" no existe")
+          case _ : Throwable => NotFound("Error 404: El usuario "+usuario+" no existe")
         }
       }
     )

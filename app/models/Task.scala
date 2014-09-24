@@ -8,13 +8,13 @@ import play.api.Play.current
 
 import java.util.Date
 
-case class Task(id: Long, label: String, fechaFin: Option[java.util.Date])
+case class Task(id: Long, label: String, fechaFin: Option[Date])
 
 object Task {
 	val task = {
 		get[Long]("id") ~
 		get[String]("label") ~
-		get[Option[java.util.Date]]("fechaFin") map{
+		get[Option[Date]]("fechaFin") map{
 			case id~label~fechaFin => Task(id,label,fechaFin)
 		}
 	}
@@ -29,12 +29,16 @@ object Task {
 			.on("id" -> id, "usuario" -> usuario).as(task *).head
 	}
 
-	def create(label: String, usuario: String) : Long = {
+	def create(label: String, usuario: String,fechaFin: Option[Date]) : Long = {
 		var id: Long = 0
+		var aux: Date = new Date
+		if(!fechaFin.isEmpty){
+			aux = fechaFin.get
+		}
 		DB.withConnection{
 			implicit c => 
-				id = SQL("insert into task(label,usuario) values ({label},{usuario})")
-				.on("label" -> label, "usuario" -> usuario).executeInsert().get
+				id = SQL("insert into task(label,usuario,fechaFin) values ({label},{usuario},{fechaFin})")
+				.on("label" -> label, "usuario" -> usuario,"fechaFin" -> aux).executeInsert().get
 		}
 		return id
 	}

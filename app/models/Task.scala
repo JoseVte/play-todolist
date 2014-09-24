@@ -30,24 +30,33 @@ object Task {
 	}
 
 	def create(label: String, usuario: String,fechaFin: Option[Date]) : Long = {
-		var id: Long = 0
+		var idNuevo: Long = 0
 		var aux: Date = new Date
 		if(!fechaFin.isEmpty){
 			aux = fechaFin.get
 		}
 		DB.withConnection{
 			implicit c => 
-				id = SQL("insert into task(label,usuario,fechaFin) values ({label},{usuario},{fechaFin})")
+				idNuevo = SQL("insert into task(label,usuario,fechaFin) values ({label},{usuario},{fechaFin})")
 				.on("label" -> label, "usuario" -> usuario,"fechaFin" -> aux).executeInsert().get
 		}
-		return id
+		return idNuevo
 	}
 
-	def delete(usuario:String, id: Long) : Int = {
+	def delete(usuario: String, id: Long) : Int = {
 		var numRows = 0
 		DB.withConnection{
 			implicit c => 
 				numRows = SQL("delete from task where id = {id} and usuario = {usuario}").on("id" -> id,"usuario" -> usuario).executeUpdate()
+		}
+		return numRows
+	}
+
+	def deleteDate(usuario: String, fecha: Date) : Int = {
+		var numRows = 0
+		DB.withConnection{
+			implicit c =>
+				numRows = SQL("delete from task where usuario = {usuario} and fechaFin < {fecha}").on("usuario" -> usuario,"fecha" -> fecha).executeUpdate()
 		}
 		return numRows
 	}

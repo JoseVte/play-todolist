@@ -74,7 +74,9 @@ object Application extends Controller {
 	}
 
   def deleteTaskDate(usuario: String, fecha: String) = Action {
-    val fechaParse : Date = new SimpleDateFormat("dd-MM-yyyy").parse(fecha)
-    Ok(fechaParse.toString())
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    val fechaParse : Date = formatoURI.parse(fecha)
+    val numRows : Int = Task.deleteDate(usuario,fechaParse)
+    Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
   }
 }

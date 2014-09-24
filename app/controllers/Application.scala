@@ -9,6 +9,9 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.json.Json
 
+import java.util.Date
+import java.text.SimpleDateFormat
+
 import models.Task
 
 object Application extends Controller {
@@ -69,4 +72,9 @@ object Application extends Controller {
       NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
     }
 	}
+
+  def deleteTaskDate(usuario: String, fecha: String) = Action {
+    val fechaParse : Date = new SimpleDateFormat("dd-MM-yyyy").parse(fecha)
+    Ok(fechaParse.toString())
+  }
 }

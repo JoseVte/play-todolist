@@ -9,13 +9,15 @@ GET     /                           controllers.Application.index
 GET     /tasks                  	controllers.Application.tasks(usuario: String = "anonimo")
 GET     /tasks/:id               controllers.Application.readTask(usuario: String = "anonimo", id: Long)
 POST    /tasks                  	controllers.Application.newTask(usuario: String = "anonimo")
-DELETE  /tasks/:id               controllers.Application.deleteTask(usuario: String = "anonimo", id: Long)
+DELETE  /tasks/{<[0-9]+>id}      controllers.Application.deleteTask(usuario: String = "anonimo", id: Long)
+DELETE  /tasks/:fecha            controllers.Application.deleteTaskDate(usuario: String = "anonimo", fecha: String)
 
 # Rutas para usuarios registrados
 GET      /:usuario/tasks         controllers.Application.tasks(usuario: String)
 GET      /:usuario/tasks/:id     controllers.Application.readTask(usuario: String, id: Long)
 POST     /:usuario/tasks         controllers.Application.newTask(usuario: String)
-DELETE   /:usuario/tasks/:id     controllers.Application.deleteTask(usuario: String, id: Long)
+DELETE   /:usuario/tasks/{<[0-9]+>id} controllers.Application.deleteTask(usuario: String, id: Long)
+DELETE   /:usuario/tasks/:fecha  controllers.Application.deleteTaskDate(usuario: String, fecha: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

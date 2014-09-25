@@ -49,6 +49,8 @@ object Application extends Controller {
     }
   }
 
+  def tasksFinalizadas(usuario: String, fecha: String) = TODO
+
 	def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
       errors => BadRequest,

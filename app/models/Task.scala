@@ -23,6 +23,10 @@ object Task {
 		implicit c => SQL("select * from task where usuario = {usuario}").on("usuario" -> usuario).as(task *)
 	}
 
+	def all(usuario: String, fecha: Date): List[Task] = DB.withConnection{
+		implicit c => SQL("select * from task where usuario = {usuario} and fechaFin <= {fecha}").on("usuario" -> usuario,"fecha" -> fecha).as(task *)
+	}
+
 	def read(usuario: String, id: Long): Task = DB.withConnection{ 
 		implicit c =>
 			SQL("select * from task where id = {id} and usuario = {usuario}")

@@ -10,6 +10,7 @@ import play.api.libs.json._
 import play.api.libs.json.Json
 
 import java.util.Date
+import java.util.Calendar
 import java.text.SimpleDateFormat
 
 import models.Task
@@ -49,7 +50,17 @@ object Application extends Controller {
     }
   }
 
-  def tasksFinalizadas(usuario: String, fecha: String) = TODO
+  def tasksFinalizadas(usuario: String, fecha: String) = Action {
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    var fechaParse = new Date()
+    if(fecha == null){
+      fechaParse = Calendar.getInstance().getTime();
+    } else {
+      fechaParse = formatoURI.parse(fecha)
+    }
+    val json = Json.toJson(Task.all(usuario,fechaParse))
+    Ok(json)
+  }
 
 	def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(

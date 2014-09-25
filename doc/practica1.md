@@ -260,5 +260,60 @@ dd-MM-yyyy  ->  25-9-2014
 Se han borrado {numRows} de tareas del usuario {usuario} hasta la fecha {fecha}
 ```
 
+>### 6. Listado de varias tareas segun la fecha
+* Muestra las tareas finalizadas de un usuario segun la fecha introducida
+
+>>#### Implementación
+>>* El método `all` de la clase `Task` tiene otra funcionalidad cuando se le añade una fecha:
+```
+def all(usuario: String, fecha: Date): List[Task] = DB.withConnection{
+    implicit c => SQL("select * from task where usuario = {usuario} and fechaFin <= {fecha}").on("usuario" -> usuario,"fecha" -> fecha).as(task *)
+}
+```
+>>* El método `tasksFinalizadas` comprueba la fecha, y si no se la pasa ninguna utiliza el dia actual:
+```
+def tasksFinalizadas(usuario: String, fecha: String) = Action {
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    var fechaParse = new Date()
+    if(fecha == null){
+        fechaParse = Calendar.getInstance().getTime();
+    } else {
+        fechaParse = formatoURI.parse(fecha)
+    }
+    val json = Json.toJson(Task.all(usuario,fechaParse))
+    Ok(json)
+}
+``` 
+
+>>#### Ejecución
+>>* El formato de la URI tiene muchas posibilidades, dependiendo de los parametro que se utilicen:
+```
+GET      /tasks/finalizadas                         controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String = null)
+GET      /tasks/finalizadas/:fecha                  controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String)
+GET      /:usuario/tasks/finalizadas               controllers.Application.tasksFinalizadas(usuario: String, fecha: String = null)
+GET      /:usuario/tasks/finalizadas/:fecha        controllers.Application.tasksFinalizadas(usuario: String, fecha: String)
+```
+>>* La fecha debe tener el formato siguiente:
+```
+dd-MM-yyyy  ->  25-9-2014     
+```
+>>* El formato que devuelve esta en JSON:
+```
+{
+    {usuario}: [
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+            "fechaFin": {Fecha de finalización}
+        },
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+            "fechaFin": {Fecha de finalización}
+        }
+    ]
+}
+```
+
 > #### Enlace a la app en Heroku
 - Enlace a [Heroku](http://shrouded-refuge-4122.herokuapp.com/tasks)

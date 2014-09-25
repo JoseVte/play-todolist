@@ -7,7 +7,7 @@ GET      /                                          controllers.Application.inde
 
 # Rutas para el usuario anonimo         
 GET      /tasks                  	                controllers.Application.tasks(usuario: String = "anonimo")
-GET      /tasks/$id<[0-9]+>                        controllers.Application.readTask(usuario: String = "anonimo", id: Long)
+GET      /tasks/$id<[0-9]+>                         controllers.Application.readTask(usuario: String = "anonimo", id: Long)
 GET      /tasks/finalizadas                         controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String = null)
 GET      /tasks/finalizadas/:fecha                  controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String)
 POST     /tasks                  	                controllers.Application.newTask(usuario: String = "anonimo")

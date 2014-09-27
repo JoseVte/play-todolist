@@ -9,18 +9,27 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.json.Json
 
+import java.util.Date
+import java.util.Calendar
+import java.text.SimpleDateFormat
+
 import models.Task
 
 object Application extends Controller {
 
 	val taskForm = Form(
-  	"label" -> nonEmptyText
+    mapping(
+      "id" -> ignored(0L),
+      "label" -> nonEmptyText,
+      "fechaFin" -> optional(date("dd/mm/yyyy"))
+    )(Task.apply)(Task.unapply)
 	)
 
   implicit val taskWrites = new Writes[Task] {
     def writes(task: Task) = Json.obj(
       "id" -> task.id,
-      "label" -> task.label)
+      "label" -> task.label,
+      "fechaFin" -> task.fechaFin)
   }
 
 	def index = Action {
@@ -41,16 +50,28 @@ object Application extends Controller {
     }
   }
 
+  def tasksFinalizadas(usuario: String, fecha: String) = Action {
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    var fechaParse = new Date()
+    if(fecha == null){
+      fechaParse = Calendar.getInstance().getTime();
+    } else {
+      fechaParse = formatoURI.parse(fecha)
+    }
+    val json = Json.toJson(Task.all(usuario,fechaParse))
+    Ok(json)
+  }
+
 	def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
       errors => BadRequest,
-      label => {
+      task => {
         try{
-          val id = Task.create(label,usuario)
-          val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,label))))
+          val id = Task.create(task.label,usuario,task.fechaFin)
+          val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
           Created(json)
         } catch {
-          case _ => NotFound("Error 404: El usuario "+usuario+" no existe")
+          case _ : Throwable => NotFound("Error 404: El usuario "+usuario+" no existe")
         }
       }
     )
@@ -64,4 +85,11 @@ object Application extends Controller {
       NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
     }
 	}
+
+  def deleteTaskDate(usuario: String, fecha: String) = Action {
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    val fechaParse : Date = formatoURI.parse(fecha)
+    val numRows : Int = Task.deleteDate(usuario,fechaParse)
+    Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
+  }
 }

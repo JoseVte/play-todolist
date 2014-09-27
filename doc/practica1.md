@@ -32,7 +32,8 @@ def readTask(usuario: String, id: Long) = Action {
 implicit val taskWrites = new Writes[Task] {
     def writes(task: Task) = Json.obj(
         "id" -> task.id,
-        "label" -> task.label)
+        "label" -> task.label,
+        "fechaFin" -> task.fechaFin)
 }
 ```
 
@@ -41,15 +42,16 @@ implicit val taskWrites = new Writes[Task] {
 ```
 GET /{usuario}/tasks/{id}
 ```
->>* Tambien se puede acceder al usuario `anónimo` con la siguiente URI:
+>>* También se puede acceder al usuario `anónimo` con la siguiente URI:
 ```
 GET /tasks/{id}
 ```
->>* Los datos devueltos están en formato JSON, indicando primero la id de la tarea y luego la descripción de la misma:
+>>* Los datos devueltos están en formato JSON, indicando primero la id de la tarea, la descripción y la fecha de finalización de la misma:
 ```
 {
     "id": {id},
-    "label": {Descripción de la tarea}
+    "label": {Descripción de la tarea},
+    "fechaFin": {Fecha de finalización}
 }
 ```
 >>* Si no existe la tarea el servidor devuelve un `ERROR 404`:
@@ -61,30 +63,34 @@ Error 404: La tarea con el identificador {id} no existe en el usuario {usuario}
 * Crea una nueva tarea para un usuario ya existente
 
 >>#### Implementación
->>* Para crear el objeto en la base de datos se utiliza el siguiente metodo de la clase `Task` que permite a partir de una descripcion y un usuario insertar dicha informacion en la base de datos, devolviendo el `id` auto-generado:
+>>* Para crear el objeto en la base de datos se utiliza el siguiente método de la clase `Task` que permite a partir de una descripción, un usuario y una fecha (opcional) insertar dicha información en la base de datos, devolviendo el `id` auto-generado:
 ```
-def create(label: String, usuario: String) : Long = {
+def create(label: String, usuario: String,fechaFin: Option[Date]) : Long = {
     var id: Long = 0
+    var aux: Date = new Date
+    if(!fechaFin.isEmpty){
+        aux = fechaFin.get
+    }
     DB.withConnection{
         implicit c => 
-            id = SQL("insert into task(label,usuario) values ({label},{usuario})")
-            .on("label" -> label, "usuario" -> usuario).executeInsert().get
+            id = SQL("insert into task(label,usuario,fechaFin) values ({label},{usuario},{fechaFin})")
+            .on("label" -> label, "usuario" -> usuario,"fechaFin" -> aux).executeInsert().get
     }
     return id
 }
 ```
->>* El método `newTask` recibe un usuario por parametro y una descripcion de una tarea por un formulario POST. Devuelve un codigo 201 con un JSON con los datos del nuevo objeto creado:
+>>* El método `newTask` recibe un usuario por parametro y una descripcion de una tarea y la fecha de finalización por un formulario POST. Devuelve un codigo 201 con un JSON con los datos del nuevo objeto creado:
 ```
 def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
         errors => BadRequest,
-        label => {
+        task => {
             try{
-                val id = Task.create(label,usuario)
-                val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,label))))
+                val id = Task.create(task.label,usuario,task.fechaFin)
+                val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
                 Created(json)
             } catch {
-                case _ => NotFound("Error 404: El usuario "+usuario+" no existe")
+                case _ : Throwable => NotFound("Error 404: El usuario "+usuario+" no existe")
             }
         }
     )
@@ -105,7 +111,8 @@ POST /tasks
 {
     {usuario}: {
         "id": {id},
-        "label": {Descripción de la tarea}
+        "label": {Descripción de la tarea},
+        "fechaFin": {Fecha de finalización}
     }
 }
 ```
@@ -118,7 +125,7 @@ Error 404: El usuario {usuario} no existe
 * Lista todas las tareas de un usuario en formato JSON
 
 >>#### Implementación
->>* Para el acceso a la base de datos se utiliza un metodo de la clase `Task` que permite crear una lista de tareas a partir de un usuario:
+>>* Para el acceso a la base de datos se utiliza un método de la clase `Task` que permite crear una lista de tareas a partir de un usuario:
 ```
 def all(usuario: String): List[Task] = DB.withConnection{
     implicit c => SQL("select * from task where usuario = {usuario}").on("usuario" -> usuario).as(task *)
@@ -148,10 +155,12 @@ GET /tasks
         {
             "id": {id},
             "label": {Descripción de la tarea}
+            "fechaFin": {Fecha de finalización}
         },
         {
             "id": {id},
             "label": {Descripción de la tarea}
+            "fechaFin": {Fecha de finalización}
         }
     ]
 }
@@ -195,7 +204,7 @@ def deleteTask(usuario: String, id: Long) = Action {
 ```
 DELETE /{usuario}/tasks/{id}
 ```
->>* Tambien se permite borrar las tareas para el usuario anonimo
+>>* También se permite borrar las tareas para el usuario anonimo
 ```
 DELETE /tasks/{id}
 ```
@@ -206,6 +215,104 @@ Tarea {id} del usuario {usuario} borrada correctamente
 >>* Si no hay ninguna tarea que concuerde se devolverá el `error 404`:
 ```
 Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
+```
+
+>### 5. Borrado de varias tareas segun la fecha
+* Borra una o varias tareas de un usuario basándose en la fecha para finalizar
+
+>>#### Implementación
+>>* Para borrar ñas tareas se utiliza el método `deleteDate` de la clase `Task`, que devuelva el numero de filas que se han modificado:
+```
+def deleteDate(usuario: String, fecha: Date) : Int = {
+    var numRows = 0
+    DB.withConnection{
+        implicit c =>
+            numRows = SQL("delete from task where usuario = {usuario} and fechaFin < {fecha}").on("usuario" -> usuario,"fecha" -> fecha).executeUpdate()
+    }
+    return numRows
+}
+```
+>>* El método `deleteTaskDate` utiliza el numero de filas modificado para enviar un mensaje al usuario:
+```
+def deleteTaskDate(usuario: String, fecha: String) = Action {
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    val fechaParse : Date = formatoURI.parse(fecha)
+    val numRows : Int = Task.deleteDate(usuario,fechaParse)
+    Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
+}
+``` 
+
+>>#### Ejecución
+>>* El formato de la URI para borrar es:
+```
+DELETE /{usuario}/tasks/{fecha}
+```
+>>* También se permite borrar las tareas para el usuario anonimo
+```
+DELETE /tasks/{fecha}
+```
+>>* La fecha debe tener el formato siguiente:
+```
+dd-MM-yyyy  ->  25-9-2014     
+```
+>>* Cuando se hayan borrado correctamente se mostrara el siguiente mensaje:
+```
+Se han borrado {numRows} de tareas del usuario {usuario} hasta la fecha {fecha}
+```
+
+>### 6. Listado de varias tareas segun la fecha
+* Muestra las tareas finalizadas de un usuario segun la fecha introducida
+
+>>#### Implementación
+>>* El método `all` de la clase `Task` tiene otra funcionalidad cuando se le añade una fecha:
+```
+def all(usuario: String, fecha: Date): List[Task] = DB.withConnection{
+    implicit c => SQL("select * from task where usuario = {usuario} and fechaFin <= {fecha}").on("usuario" -> usuario,"fecha" -> fecha).as(task *)
+}
+```
+>>* El método `tasksFinalizadas` comprueba la fecha, y si no se la pasa ninguna utiliza el dia actual:
+```
+def tasksFinalizadas(usuario: String, fecha: String) = Action {
+    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+    var fechaParse = new Date()
+    if(fecha == null){
+        fechaParse = Calendar.getInstance().getTime();
+    } else {
+        fechaParse = formatoURI.parse(fecha)
+    }
+    val json = Json.toJson(Task.all(usuario,fechaParse))
+    Ok(json)
+}
+``` 
+
+>>#### Ejecución
+>>* El formato de la URI tiene muchas posibilidades, dependiendo de los parametro que se utilicen:
+```
+GET      /tasks/finalizadas                         controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String = null)
+GET      /tasks/finalizadas/:fecha                  controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String)
+GET      /:usuario/tasks/finalizadas               controllers.Application.tasksFinalizadas(usuario: String, fecha: String = null)
+GET      /:usuario/tasks/finalizadas/:fecha        controllers.Application.tasksFinalizadas(usuario: String, fecha: String)
+```
+>>* La fecha debe tener el formato siguiente:
+```
+dd-MM-yyyy  ->  25-9-2014     
+```
+>>* El formato que devuelve esta en JSON:
+```
+{
+    {usuario}: [
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+            "fechaFin": {Fecha de finalización}
+        },
+        {
+            "id": {id},
+            "label": {Descripción de la tarea}
+            "fechaFin": {Fecha de finalización}
+        }
+    ]
+}
 ```
 
 > #### Enlace a la app en Heroku

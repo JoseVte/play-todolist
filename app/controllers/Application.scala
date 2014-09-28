@@ -37,59 +37,79 @@ object Application extends Controller {
 	}
 
 	def tasks(usuario: String) = Action {
-    val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
-		Ok(json)
+    if(Task.comprobarUsuario(usuario)){
+      val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
+		  Ok(json)
+    } else {
+      NotFound("Error 404: El usuario "+usuario+" no existe")
+    }
 	}
 
   def readTask(usuario: String, id: Long) = Action {
-    try{
-      val json = Json.toJson(Task.read(usuario,id))
-      Ok(json)
-    } catch {
-      case e: NoSuchElementException => NotFound("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)
+    if(Task.comprobarUsuario(usuario)){
+      try{
+        val json = Json.toJson(Task.read(usuario,id))
+        Ok(json)
+      } catch {
+        case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)
+      }
+    } else {
+      NotFound("Error 404: El usuario "+usuario+" no existe")
     }
   }
 
   def tasksFinalizadas(usuario: String, fecha: String) = Action {
-    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
-    var fechaParse = new Date()
-    if(fecha == null){
-      fechaParse = Calendar.getInstance().getTime();
+    if(Task.comprobarUsuario(usuario)){
+      val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+      var fechaParse = new Date()
+      if(fecha == null){
+        fechaParse = Calendar.getInstance().getTime();
+      } else {
+        fechaParse = formatoURI.parse(fecha)
+      }
+      val json = Json.toJson(Task.all(usuario,fechaParse))
+      Ok(json)
     } else {
-      fechaParse = formatoURI.parse(fecha)
+      NotFound("Error 404: El usuario "+usuario+" no existe")
     }
-    val json = Json.toJson(Task.all(usuario,fechaParse))
-    Ok(json)
   }
 
 	def newTask(usuario: String) = Action { implicit request =>
     taskForm.bindFromRequest.fold(
       errors => BadRequest,
       task => {
-        try{
+        if(Task.comprobarUsuario(usuario)){
           val id = Task.create(task.label,usuario,task.fechaFin)
           val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
           Created(json)
-        } catch {
-          case _ : Throwable => NotFound("Error 404: El usuario "+usuario+" no existe")
+        } else {
+          NotFound("Error 404: El usuario "+usuario+" no existe")
         }
       }
     )
   }
 
 	def deleteTask(usuario: String, id: Long) = Action {
-		val resultado : Int = Task.delete(usuario,id)
-		if(resultado == 1){
-      Ok("Tarea "+id+" del usuario "+usuario+" borrada correctamente")
+		if(Task.comprobarUsuario(usuario)){
+      val resultado : Int = Task.delete(usuario,id)
+  		if(resultado == 1){
+        Ok("Tarea "+id+" del usuario "+usuario+" borrada correctamente")
+      } else {
+        NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
+      }
     } else {
-      NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
+      NotFound("Error 404: El usuario "+usuario+" no existe")
     }
 	}
 
   def deleteTaskDate(usuario: String, fecha: String) = Action {
-    val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
-    val fechaParse : Date = formatoURI.parse(fecha)
-    val numRows : Int = Task.deleteDate(usuario,fechaParse)
-    Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
+    if(Task.comprobarUsuario(usuario)){
+      val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
+      val fechaParse : Date = formatoURI.parse(fecha)
+      val numRows : Int = Task.deleteDate(usuario,fechaParse)
+      Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
+    } else {
+      NotFound("Error 404: El usuario "+usuario+" no existe")
+    }
   }
 }

@@ -19,6 +19,19 @@ object Task {
 		}
 	}
 
+	val user = {
+		int("id") ~ str("nombre") map{
+			case id~nombre => (id,nombre)
+		}
+	}
+
+	def comprobarUsuario(usuario: String): Boolean = {
+    	val aux = DB.withConnection{
+    		implicit c => SQL("select * from usuarios where nombre = {usuario}").on("usuario" -> usuario).as(user.*)
+    	}
+    	return !aux.isEmpty
+	}
+
 	def all(usuario: String): List[Task] = DB.withConnection{
 		implicit c => SQL("select * from task where usuario = {usuario}").on("usuario" -> usuario).as(task *)
 	}

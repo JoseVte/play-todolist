@@ -32,6 +32,10 @@ object Application extends Controller {
       "fechaFin" -> task.fechaFin)
   }
 
+  def ERROR_NO_USER(usuario: String) : String = {
+    return "Error 404: El usuario "+usuario+" no existe";
+  }
+
 	def index = Action {
   	Redirect(routes.Application.tasks("anonimo"))
 	}
@@ -41,7 +45,7 @@ object Application extends Controller {
       val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
 		  Ok(json)
     } else {
-      NotFound("Error 404: El usuario "+usuario+" no existe")
+      NotFound(ERROR_NO_USER(usuario))
     }
 	}
 
@@ -54,7 +58,7 @@ object Application extends Controller {
         case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)
       }
     } else {
-      NotFound("Error 404: El usuario "+usuario+" no existe")
+      NotFound(ERROR_NO_USER(usuario))
     }
   }
 
@@ -70,7 +74,7 @@ object Application extends Controller {
       val json = Json.toJson(Task.all(usuario,fechaParse))
       Ok(json)
     } else {
-      NotFound("Error 404: El usuario "+usuario+" no existe")
+      NotFound(ERROR_NO_USER(usuario))
     }
   }
 
@@ -83,7 +87,7 @@ object Application extends Controller {
           val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
           Created(json)
         } else {
-          NotFound("Error 404: El usuario "+usuario+" no existe")
+          NotFound(ERROR_NO_USER(usuario))
         }
       }
     )
@@ -98,7 +102,7 @@ object Application extends Controller {
         NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
       }
     } else {
-      NotFound("Error 404: El usuario "+usuario+" no existe")
+      NotFound(ERROR_NO_USER(usuario))
     }
 	}
 
@@ -109,7 +113,7 @@ object Application extends Controller {
       val numRows : Int = Task.deleteDate(usuario,fechaParse)
       Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
     } else {
-      NotFound("Error 404: El usuario "+usuario+" no existe")
+      NotFound(ERROR_NO_USER(usuario))
     }
   }
 }

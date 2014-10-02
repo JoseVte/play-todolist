@@ -54,11 +54,11 @@ object Application extends Controller {
 
   def readTask(usuario: String, id: Long) = Action {
     if(Task.comprobarUsuario(usuario)){
-      try{
-        val json = Json.toJson(Task.read(usuario,id))
-        Ok(json)
-      } catch {
-        case _ => NotFound(errores("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)).as("text/html")
+      Task.read(usuario,id) match {
+        case Some(task) => 
+          val json = Json.toJson(task)
+          Ok(json)
+        case None => NotFound(errores("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)).as("text/html")
       }
     } else {
       NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
@@ -69,13 +69,18 @@ object Application extends Controller {
     if(Task.comprobarUsuario(usuario)){
       val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
       var fechaParse = new Date()
-      if(fecha == null){
-        fechaParse = Calendar.getInstance().getTime();
-      } else {
-        fechaParse = formatoURI.parse(fecha)
+      try{
+        if(fecha == null){
+          fechaParse = Calendar.getInstance().getTime();
+        } else {
+          fechaParse = formatoURI.parse(fecha)
+        }
+
+        val json = Json.toJson(Task.all(usuario,fechaParse))
+        Ok(json)
+      } catch {
+        case e: java.text.ParseException => NotFound(errores("Error 404: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
       }
-      val json = Json.toJson(Task.all(usuario,fechaParse))
-      Ok(json)
     } else {
       NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
     }
@@ -112,9 +117,13 @@ object Application extends Controller {
   def deleteTaskDate(usuario: String, fecha: String) = Action {
     if(Task.comprobarUsuario(usuario)){
       val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
-      val fechaParse : Date = formatoURI.parse(fecha)
-      val numRows : Int = Task.deleteDate(usuario,fechaParse)
-      Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
+      try{
+        val fechaParse : Date = formatoURI.parse(fecha)
+        val numRows : Int = Task.deleteDate(usuario,fechaParse)
+        Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
+      } catch {
+        case e: java.text.ParseException => NotFound(errores("Error 404: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
+      }
     } else {
       NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
     }

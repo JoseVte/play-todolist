@@ -32,8 +32,11 @@ object Application extends Controller {
       "fechaFin" -> task.fechaFin)
   }
 
-  def ERROR_NO_USER(usuario: String) : String = {
-    return "Error 404: El usuario "+usuario+" no existe";
+  def errores(mensajeError: String) : String = {
+    var error: String = "<html><head><title>- ooops! -</title><style>body { background:#0000aa;color:#ffffff;font-family:courier;font-size:12pt;text-align:center;margin:100px;}blink {color:yellow;}.neg {background:#fff;color:#0000aa;padding:2px 8px;font-weight:bold;}p {margin:30px 100px;text-align:left;font-size: 20;}a,a:hover {color:inherit;font:inherit;}</style></head><body><h1><span class=\"neg\">"
+    error+=mensajeError
+    error+="</span></h1><p><br>Usted puede esperar y ver si vuelve a estar disponible, o puede reiniciar su PC.</p><p>* Envienos un e-mail para notificar esto e intentelo mas tarde.<br />* Pulse CTRL+ALT+SUPR para reiniciar su PC. Usted perder&aacute; toda la informaci&oacute;n no guardada en cualquier programa que este ejecutando.</p>Pulse cualquier link para continuar<blink>_</blink><div class=\"menu\"><a href=\"\">Recargar</a> | <a href=\"http://www.google.es\">Google</a> |</div></body></html>";
+    return error;
   }
 
 	def index = Action {
@@ -45,7 +48,7 @@ object Application extends Controller {
       val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
 		  Ok(json)
     } else {
-      NotFound(ERROR_NO_USER(usuario))
+      NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
     }
 	}
 
@@ -55,10 +58,10 @@ object Application extends Controller {
         val json = Json.toJson(Task.read(usuario,id))
         Ok(json)
       } catch {
-        case _ => NotFound("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)
+        case _ => NotFound(errores("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)).as("text/html")
       }
     } else {
-      NotFound(ERROR_NO_USER(usuario))
+      NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
     }
   }
 
@@ -74,7 +77,7 @@ object Application extends Controller {
       val json = Json.toJson(Task.all(usuario,fechaParse))
       Ok(json)
     } else {
-      NotFound(ERROR_NO_USER(usuario))
+      NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
     }
   }
 
@@ -87,7 +90,7 @@ object Application extends Controller {
           val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
           Created(json)
         } else {
-          NotFound(ERROR_NO_USER(usuario))
+          NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
         }
       }
     )
@@ -99,10 +102,10 @@ object Application extends Controller {
   		if(resultado == 1){
         Ok("Tarea "+id+" del usuario "+usuario+" borrada correctamente")
       } else {
-        NotFound("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)
+        NotFound(errores("Error 404: La tarea con el identificador "+id+" no existe para el usuario "+usuario)).as("text/html")
       }
     } else {
-      NotFound(ERROR_NO_USER(usuario))
+      NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
     }
 	}
 
@@ -113,7 +116,7 @@ object Application extends Controller {
       val numRows : Int = Task.deleteDate(usuario,fechaParse)
       Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
     } else {
-      NotFound(ERROR_NO_USER(usuario))
+      NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
     }
   }
 }

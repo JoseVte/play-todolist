@@ -17,6 +17,8 @@ import models.Task
 
 object Application extends Controller {
 
+  val parseDate: String = "^([0-9]{1,2}-[0-9]{1,2}-[0-9]{4})$"
+
 	val taskForm = Form(
     mapping(
       "id" -> ignored(0L),
@@ -69,17 +71,16 @@ object Application extends Controller {
     if(Task.comprobarUsuario(usuario)){
       val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
       var fechaParse = new Date()
-      try{
-        if(fecha == null){
-          fechaParse = Calendar.getInstance().getTime();
-        } else {
-          fechaParse = formatoURI.parse(fecha)
-        }
-
+      if(fecha != null && fecha.matches(parseDate)){
+        fechaParse = formatoURI.parse(fecha)
         val json = Json.toJson(Task.all(usuario,fechaParse))
         Ok(json)
-      } catch {
-        case e: java.text.ParseException => NotFound(errores("Error 404: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
+      }else if(fecha == null){
+        fechaParse = Calendar.getInstance().getTime()
+        val json = Json.toJson(Task.all(usuario,fechaParse))
+        Ok(json)
+      } else {
+        NotFound(errores("Error 404: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
       }
     } else {
       NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
@@ -117,12 +118,12 @@ object Application extends Controller {
   def deleteTaskDate(usuario: String, fecha: String) = Action {
     if(Task.comprobarUsuario(usuario)){
       val formatoURI = new SimpleDateFormat("dd-MM-yyyy")
-      try{
+      if(fecha != null && fecha.matches(parseDate)){
         val fechaParse : Date = formatoURI.parse(fecha)
         val numRows : Int = Task.deleteDate(usuario,fechaParse)
         Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
-      } catch {
-        case e: java.text.ParseException => NotFound(errores("Error 404: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
+      } else {
+        NotFound(errores("Error 404: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
       }
     } else {
       NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")

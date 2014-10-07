@@ -38,7 +38,7 @@ object Application extends Controller {
    def errores(mensajeError: String) : String = {
       var error: String = "<html><head><title>- ooops! -</title><style>body { background:#0000aa;color:#ffffff;font-family:courier;font-size:12pt;text-align:center;margin:100px;}blink {color:yellow;}.neg {background:#fff;color:#0000aa;padding:2px 8px;font-weight:bold;}p {margin:30px 100px;text-align:left;font-size: 20;}a,a:hover {color:inherit;font:inherit;}</style></head><body><h1><span class=\"neg\">"
       error+=mensajeError
-      error+="</span></h1><p><br>Usted puede esperar y ver si vuelve a estar disponible, o puede reiniciar su PC.</p><p>* Envienos un e-mail para notificar esto e intentelo mas tarde.<br />* Pulse CTRL+ALT+SUPR para reiniciar su PC. Usted perder&aacute; toda la informaci&oacute;n no guardada en cualquier programa que este ejecutando.</p>Pulse cualquier link para continuar<blink>_</blink><div class=\"menu\"><a href=\"\">Recargar</a> | <a href=\"http://www.google.es\">Google</a> |</div></body></html>";
+      error+="</span></h1><p><br>Usted puede esperar y ver si vuelve a estar disponible, o puede reiniciar su PC.</p><p>* Env&iacute;enos un e-mail para notificar esto e int&eacute;ntelo mas tarde.<br />* Pulse CTRL+ALT+SUPR para reiniciar su PC. Usted perder&aacute; toda la informaci&oacute;n no guardada en cualquier programa que este ejecutando.</p>Pulse cualquier link para continuar<blink>_</blink><div class=\"menu\"><a href=\"\">Recargar</a> | <a href=\"http://www.google.es\">Google</a> |</div></body></html>";
       return error;
    }
 

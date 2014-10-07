@@ -2,33 +2,37 @@
 
 En este informe se van a añadir todas las funcionalidades que posee la aplicación en la practica 1
 
+<!-- MarkdownTOC -->
+
 - [I. Funcionalidades principales](#i-funcionalidades-principales)
    - [1. Consulta de una tarea](#1-consulta-de-una-tarea)
-      - [1.1 Implementación](#1-1-implementaci-n)
-      - [1.2 Ejecución](#1-2-ejecuci-n)
-   - [2. Creación de nueva tarea](#2-creaci-n-de-nueva-tarea)
-      - [2.1 Implementación](#2-1-implementaci-n)
-      - [2.2 Ejecución](#2-2-ejecuci-n)
+      - [1.1 Implementación](#11-implementación)
+      - [1.2 Ejecución](#12-ejecución)
+   - [2. Creación de nueva tarea](#2-creación-de-nueva-tarea)
+      - [2.1 Implementación](#21-implementación)
+      - [2.2 Ejecución](#22-ejecución)
    - [3. Listado de tareas](#3-listado-de-tareas)
-      - [3.1 Implementación](#3-1-implementaci-n)
-      - [3.2 Ejecución](#3-2-ejecuci-n)
+      - [3.1 Implementación](#31-implementación)
+      - [3.2 Ejecución](#32-ejecución)
    - [4. Borrado de una tarea](#4-borrado-de-una-tarea)
-      - [4.1 Implementación](#4-1-implementaci-n)
-      - [4.2 Ejecución](#4-2-ejecuci-n)
-   - [5. Borrado de varias tareas según la fecha](#5-borrado-de-varias-tareas-seg-n-la-fecha)
-      - [5.1 Implementación](#5-1-implementaci-n)
-      - [5.2 Ejecución](#5-2-ejecuci-n)
-   - [6. Listado de varias tareas según la fecha](#6-listado-de-varias-tareas-seg-n-la-fecha)
-      - [6.1 Implementación](#6-1-implementaci-n)
-      - [6.2 Ejecución](#6-2-ejecuci-n)
+      - [4.1 Implementación](#41-implementación)
+      - [4.2 Ejecución](#42-ejecución)
+   - [5. Borrado de varias tareas según la fecha](#5-borrado-de-varias-tareas-según-la-fecha)
+      - [5.1 Implementación](#51-implementación)
+      - [5.2 Ejecución](#52-ejecución)
+   - [6. Listado de varias tareas según la fecha](#6-listado-de-varias-tareas-según-la-fecha)
+      - [6.1 Implementación](#61-implementación)
+      - [6.2 Ejecución](#62-ejecución)
 - [II. Funcionalidades extra](#ii-funcionalidades-extra)
-   - [1. Comprobación de un usuario](#1-comprobaci-n-de-un-usuario)
-   - [2. Conversión de un Task a JSON](#2-conversi-n-de-un-task-a-json)
+   - [1. Comprobación de un usuario](#1-comprobación-de-un-usuario)
+   - [2. Conversión de un Task a JSON](#2-conversión-de-un-task-a-json)
    - [3. Mensaje HTML de error personalizado](#3-mensaje-html-de-error-personalizado)
-   - [4. Expresión regular para las fechas](#4-expresi-n-regular-para-las-fechas)
+   - [4. Expresión regular para las fechas](#4-expresión-regular-para-las-fechas)
 - [III. Repositorios](#iii-repositorios)
    - [Bitbucket](#bitbucket)
    - [Heroku](#heroku)
+
+<!-- /MarkdownTOC -->
 
 ## I. Funcionalidades principales
 

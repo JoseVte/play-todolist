@@ -182,7 +182,7 @@ Error 404: El usuario {usuario} no existe
 ## II. Links de interes
 
 ### Documentación practica 1
-- [Documentación practica 1](/blob/master/doc/practica1.md)
+- [Documentación practica 1](/doc/practica1.md)
 
 ### Bitbucket
 - Enlace a [Bitbucket](https://bitbucket.org/JoseVte/play-todolist)

@@ -1,99 +1,109 @@
 # Play Todolist
 
-Una app de prueba.
+Una APP de prueba.
 
-## Funcionalidades
+## I. Funcionalidades
+
+A continuación se van a describir todas las funcionalidades principales de la API.
 
 ### 1. Consulta de una tarea
+Devuelve una tarea concreta de un usuario concreto en formato **JSON**.
 
-* Acceso a una tarea concreta de un usuario concreto
 * El formato de la URI para acceder a la funcionalidad es:
 ```
 GET /{usuario}/tasks/{id}
 ```
-* Tambien se puede acceder al usuario `anónimo` con la siguiente URI:
+* También se puede acceder al usuario `anónimo` con la siguiente URI, pero está en desuso:
 ```
 GET /tasks/{id}
 ```
-* Los datos devueltos están en formato JSON, indicando primero la id de la tarea, la descripción y la fecha de finalización de la misma:
-```
+* Los datos devueltos están en formato **JSON**, indicando primero la `id` de la tarea, la `descripción` y la `fecha de finalización` de la misma:
+``` json
 {
-    "id": {id},
-    "label": {Descripción de la tarea},
-    "fechaFin": {Fecha de finalización}
+   "id": {id},
+   "label": {Descripción de la tarea},
+   "fechaFin": {Fecha de finalización}
 }
 ```
-* Si no existe la tarea el servidor devuelve un `ERROR 404`:
+* Si no existe la tarea en el servidor o el usuario no existe devuelve un `ERROR 404` con un `HTTP`:
 ```
 Error 404: La tarea con el identificador {id} no existe en el usuario {usuario}
+Error 404: El usuario {usuario} no existe
 ```
 
 ### 2. Creación de nueva tarea
+Crea una nueva tarea para un usuario ya existente en la base de datos.
 
-* Crea una nueva tarea para un usuario ya existente
 * En la URI se debe especificar el usuario donde se desea crear la nueva tarea:
 ```
 POST /{usuario}/tasks
 ```
-* Si no se especifica ninguno se insertará en el usuario anónimo:
+* Si no se especifica ninguno se insertará en el usuario anónimo, pero está en desuso:
 ```
 POST /tasks
 ```
-* La funcionalidad devuelve JSON:
-```
+* La funcionalidad devuelve **JSON**:
+``` json
 {
-    {usuario}: {
-        "id": {id},
-        "label": {Descripción de la tarea},
-        "fechaFin": {Fecha de finalización}
-    }
+   {usuario}: {
+      "id": {id},
+      "label": {Descripción de la tarea},
+      "fechaFin": {Fecha de finalización}
+   }
 }
 ```
-* Si el usuario no existe devuelve un `error 404`:
+* Si el usuario no existe devuelve un `ERROR 404`:
+```
+Error 404: El usurario {usuario} no existe
+```
+
+### 3. Listado de tareas
+Lista todas las tareas de un usuario en formato **JSON**.
+
+* En la URI se debe especificar el usuario:
+```
+GET /{usuario}/tasks
+```
+* Si no se especifica ninguno se accederá al usuario anónimo, pero está en desuso:
+```
+GET /tasks
+```
+* La funcionalidad devuelve un lista de las tareas del usuario en formato **JSON**:
+``` json
+{
+   {usuario}: [
+      {
+         "id": {id},
+         "label": {Descripción de la tarea}
+         "fechaFin": {Fecha de finalización}
+      },
+      {
+         "id": {id},
+         "label": {Descripción de la tarea}
+         "fechaFin": {Fecha de finalización}
+      }
+   ]
+}
+```
+* Si no hay ninguna tarea en el usuario se devolverá una lista vacía en **JSON**:
+``` json
+{
+   {usuario}: []
+}
+```
+* Si el usuario no existe saltará el `ERROR 404`:
 ```
 Error 404: El usuario {usuario} no existe
 ```
 
-### 3. Listado de tareas
-
-* Lista todas las tareas de un usuario
-* El formato de la URI es:
-```
-GET /{usuario}/tasks
-GET /tasks      << Para el usuario anonimo
-```
-* La funcionalidad devuelve un lista de tareas en formato JSON:
-```
-{
-    {usuario}: [
-        {
-            "id": {id},
-            "label": {Descripción de la tarea},
-            "fechaFin": {Fecha de finalización}
-        },
-        {
-            "id": {id},
-            "label": {Descripción de la tarea},
-            "fechaFin": {Fecha de finalización}
-        }
-    ]
-}
-```
-* Si no hay ninguna tarea en el usuario, o no existe dicho usuario; se devolverá una lista vacía en JSON:
-```
-{
-    {usuario}: []
-}
-```
-
 ### 4. Borrado de una tarea
+Borra una tarea de un usuario basándose en el identificador.
 
-* Borra una tarea basándose en el identificador
 * El formato de la URI para borrar es:
 ```
 DELETE /{usuario}/tasks/{id}
 ```
-* Tambien se permite borrar las tareas para el usuario anonimo
+* También se permite borrar las tareas para el usuario anónimo, pero está en desuso:
 ```
 DELETE /tasks/{id}
 ```
@@ -101,19 +111,20 @@ DELETE /tasks/{id}
 ```
 Tarea {id} del usuario {usuario} borrada correctamente
 ```
-* Si no hay ninguna tarea que concuerde se devolverá el `error 404`:
+* Si no hay ninguna tarea que concuerde o el usuario no existe se devolverá el `ERROR 404`:
 ```
 Error 404: La tarea con el identificador {id} no existe para el usuario {usuario}
+Error 404: El usuario {usuario} no existe
 ```
 
-### 5. Borrado de varias tareas segun la fecha
+### 5. Borrado de varias tareas según la fecha
+Borra tareas de un usuario basándose en si la fecha para finalizar ha sido vencida por la dada por parámetro.
 
-* Borra una o varias tareas de un usuario basándose en la fecha para finalizar
 * El formato de la URI para borrar es:
 ```
 DELETE /{usuario}/tasks/{fecha}
 ```
-* También se permite borrar las tareas para el usuario anonimo
+* También se permite borrar las tareas para el usuario anónimo, pero está en desuso:
 ```
 DELETE /tasks/{fecha}
 ```
@@ -124,11 +135,17 @@ dd-MM-yyyy  ->  25-9-2014
 * Cuando se hayan borrado correctamente se mostrara el siguiente mensaje:
 ```
 Se han borrado {numRows} de tareas del usuario {usuario} hasta la fecha {fecha}
+```
+* Puede devolver dos errores, dependiendo si esta mal formada la fecha o el usuario no existe:
+```
+Error 400: La fecha {fecha} no esta en el formato correcto
+Error 404: El usuario {usuario} no existe
+```
 
-### 6. Listado de varias tareas segun la fecha
+### 6. Listado de varias tareas según la fecha
+Muestra todas las tareas finalizadas de un usuario hasta la fecha introducida, incluyéndola.
 
-* Muestra las tareas finalizadas de un usuario segun la fecha introducida
-* El formato de la URI tiene muchas posibilidades, dependiendo de los parametro que se utilicen:
+* El formato de la URI tiene muchas posibilidades, dependiendo de los parámetro que se inserten. Las dos primeras están en desuso:
 ```
 GET      /tasks/finalizadas                         controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String = null)
 GET      /tasks/finalizadas/:fecha                  controllers.Application.tasksFinalizadas(usuario: String = "anonimo", fecha: String)
@@ -139,23 +156,36 @@ GET      /:usuario/tasks/finalizadas/:fecha        controllers.Application.tasks
 ```
 dd-MM-yyyy  ->  25-9-2014     
 ```
-* El formato que devuelve esta en JSON:
-```
+* Los datos que devuelve esta en un lista en formato **JSON**:
+``` json
 {
-    {usuario}: [
-        {
-            "id": {id},
-            "label": {Descripción de la tarea}
-            "fechaFin": {Fecha de finalización}
-        },
-        {
-            "id": {id},
-            "label": {Descripción de la tarea}
-            "fechaFin": {Fecha de finalización}
-        }
-    ]
+   {usuario}: [
+      {
+         "id": {id},
+         "label": {Descripción de la tarea}
+         "fechaFin": {Fecha de finalización}
+      },
+      {
+         "id": {id},
+         "label": {Descripción de la tarea}
+         "fechaFin": {Fecha de finalización}
+      }
+   ]
 }
 ```
+* Puede devolver dos errores, dependiendo si esta mal formada la fecha o el usuario no existe:
+```
+Error 400: La fecha {fecha} no esta en el formato correcto
+Error 404: El usuario {usuario} no existe
+```
 
-> #### Enlace a la app en Heroku
+## II. Links de interes
+
+### Documentación practica 1
+- [Documentación practica 1](/blob/master/doc/practica1.md)
+
+### Bitbucket
+- Enlace a [Bitbucket](https://bitbucket.org/JoseVte/play-todolist)
+
+### Heroku
 - Enlace a [Heroku](http://shrouded-refuge-4122.herokuapp.com/tasks)

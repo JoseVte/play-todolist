@@ -14,6 +14,7 @@ import java.util.Calendar
 import java.text.SimpleDateFormat
 
 import models.Task
+import models.User
 
 object Application extends Controller {
 
@@ -47,7 +48,7 @@ object Application extends Controller {
    }
 
    def tasks(usuario: String) = Action {
-      if(Task.comprobarUsuario(usuario)){
+      if(User.comprobarUsuario(usuario)){
          val json = Json.toJson(Map(usuario -> Json.toJson(Task.all(usuario))))
          Ok(json)
       } else {
@@ -56,7 +57,7 @@ object Application extends Controller {
    }
 
    def readTask(usuario: String, id: Long) = Action {
-      if(Task.comprobarUsuario(usuario)){
+      if(User.comprobarUsuario(usuario)){
          Task.read(usuario,id) match {
             case Some(task) => 
                val json = Json.toJson(task)
@@ -69,7 +70,7 @@ object Application extends Controller {
    }
 
    def tasksFinalizadas(usuario: String, fecha: String) = Action {
-      if(Task.comprobarUsuario(usuario)){
+      if(User.comprobarUsuario(usuario)){
          val formatoURI = new SimpleDateFormat(formatoParse)
          var fechaParse = new Date()
          if(fecha != null && fecha.matches(parseDate)){
@@ -92,7 +93,7 @@ object Application extends Controller {
       taskForm.bindFromRequest.fold(
          errors => BadRequest,
          task => {
-            if(Task.comprobarUsuario(usuario)){
+            if(User.comprobarUsuario(usuario)){
                val id = Task.create(task.label,usuario,task.fechaFin)
                val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
                Created(json)
@@ -104,7 +105,7 @@ object Application extends Controller {
    }
 
    def deleteTask(usuario: String, id: Long) = Action {
-      if(Task.comprobarUsuario(usuario)){
+      if(User.comprobarUsuario(usuario)){
          val resultado : Int = Task.delete(usuario,id)
          if(resultado == 1){
             Ok("Tarea "+id+" del usuario "+usuario+" borrada correctamente")
@@ -117,7 +118,7 @@ object Application extends Controller {
    }
 
    def deleteTaskDate(usuario: String, fecha: String) = Action {
-      if(Task.comprobarUsuario(usuario)){
+      if(User.comprobarUsuario(usuario)){
          val formatoURI = new SimpleDateFormat(formatoParse)
          if(fecha != null && fecha.matches(parseDate)){
             val fechaParse : Date = formatoURI.parse(fecha)

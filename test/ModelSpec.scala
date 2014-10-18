@@ -13,7 +13,7 @@ class ModelSpec extends Specification {
     val label = "Tarea test"
     val nombreUsuario = "Test"
 
-    "Models" should {
+    "Modelo de Task" should {
         "crear tarea" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // LLamamos al modelo para crear una tarea
@@ -58,7 +58,7 @@ class ModelSpec extends Specification {
                 User.crearUser(nombreUsuario)
                 val idTest = Task.create(label,nombreUsuario,null)
 
-                // Comprobamos todas las tareas
+                // Comprobamos la tareas
                 val tarea = Task.read(nombreUsuario,idTest)
                 tarea must beSome
                 tarea.get.id must_== idTest
@@ -70,6 +70,27 @@ class ModelSpec extends Specification {
                 Task.read(null,idTest) must beNone
                 // Probamos a listar una tarea con otro id 0L
                 Task.read(nombreUsuario,0L) must beNone
+            }
+        }
+
+        "borrado de una tarea" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos una tarea de prueba
+                User.crearUser(nombreUsuario)
+                val idTest = Task.create(label,nombreUsuario,null)
+
+                // Borramos la tarea creada
+                val ok = Task.delete(nombreUsuario,idTest)
+                ok must_== 1
+                Task.all(nombreUsuario) must be empty
+
+                // Intentamos volver a borrar la misma tarea
+                Task.delete(nombreUsuario,idTest) must_== 0
+                // Intentamos volver a borrar una tarea de un usuario que no existe
+                Task.delete(null,idTest) must_== 0
+                Task.delete("",idTest) must_== 0
+                // Intentamos volver a borrar una tarea con otro id
+                Task.delete(nombreUsuario,0L) must_== 0
             }
         }
     }  

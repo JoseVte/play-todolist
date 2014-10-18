@@ -45,10 +45,31 @@ class ModelSpec extends Specification {
                 lista must be have size(1)
                 lista(0).id must_== idTest
                 lista(0).label must_== label
-                
+
                 // Probamos a listar una tarea sin usuario ""
                 Task.all("") must be empty
 
+            }
+        }
+
+        "una tarea concreta" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos una tarea de prueba
+                User.crearUser(nombreUsuario)
+                val idTest = Task.create(label,nombreUsuario,null)
+
+                // Comprobamos todas las tareas
+                val tarea = Task.read(nombreUsuario,idTest)
+                tarea must beSome
+                tarea.get.id must_== idTest
+                tarea.get.label must_== label
+
+                // Probamos a listar una tarea sin usuario ""
+                Task.read("",idTest) must beNone
+                // Probamos a listar una tarea sin usuario null
+                Task.read(null,idTest) must beNone
+                // Probamos a listar una tarea con otro id 0L
+                Task.read(nombreUsuario,0L) must beNone
             }
         }
     }  

@@ -17,11 +17,20 @@ class ApplicationSpec extends Specification {
 
         "pagina por defecto" in {  
             running(FakeApplication()) {
-                val Some(home) = route(FakeRequest(GET, "/tasks"))
+                val Some(home) = route(FakeRequest(GET, "/"))
 
-                status(home) must equalTo(OK)  
-                contentType(home) must beSome.which(_ == "application/json")  
-                contentAsString(home) must contain ("anonimo")  
+                status(home) must equalTo(SEE_OTHER)
+                redirectLocation(home) must beSome("/tasks")
+            }
+        }
+
+        "todas las tareas" in {
+            running(FakeApplication()) {
+                val Some(pag) = route(FakeRequest(GET,"/tasks"))
+
+                status(pag) must equalTo(OK)  
+                contentType(pag) must beSome.which(_ == "application/json")  
+                contentAsString(pag) must contain ("anonimo") 
             }
         }
     }

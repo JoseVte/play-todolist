@@ -1,3 +1,5 @@
+package test
+
 import org.specs2.mutable._ 
 
 import play.api.test._  
@@ -58,7 +60,7 @@ class ModelSpec extends Specification {
                 User.crearUser(nombreUsuario)
                 val idTest = Task.create(label,nombreUsuario,null)
 
-                // Comprobamos la tareas
+                // Comprobamos la tarea
                 val tarea = Task.read(nombreUsuario,idTest)
                 tarea must beSome
                 tarea.get.id must_== idTest

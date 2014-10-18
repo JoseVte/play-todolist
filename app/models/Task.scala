@@ -36,7 +36,7 @@ object Task {
    def create(label: String, usuario: String,fechaFin: Option[Date]) : Long = {
       var idNuevo: Long = 0
       var aux: Date = new Date
-      if(!fechaFin.isEmpty){
+      if(fechaFin!=null && !fechaFin.isEmpty){
          aux = fechaFin.get
       }
       DB.withConnection{

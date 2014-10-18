@@ -29,5 +29,27 @@ class ModelSpec extends Specification {
                 Task.create(label,"",null) must throwA[JdbcSQLException]
             }
         }
+
+        "todas las tareas" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos una tarea de prueba
+                User.crearUser(nombreUsuario)
+
+                // Comprobamos que la lista inicial esta vacia
+                Task.all(nombreUsuario) must be empty
+
+                val idTest = Task.create(label,nombreUsuario,null)
+
+                // Comprobamos todas las tareas
+                val lista = Task.all(nombreUsuario)
+                lista must be have size(1)
+                lista(0).id must_== idTest
+                lista(0).label must_== label
+                
+                // Probamos a listar una tarea sin usuario ""
+                Task.all("") must be empty
+
+            }
+        }
     }  
 }

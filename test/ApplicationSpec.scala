@@ -59,5 +59,21 @@ class ApplicationSpec extends Specification {
                 contentAsString(form) must contain ("Test")
             }
         }
+
+        "borrado de una tarea" in {
+            running(FakeApplication()) {
+                val Some(del) = route(FakeRequest(DELETE,"/tasks/1"))
+
+                status(del) must equalTo(OK)
+                contentType(del) must beSome.which(_ == "text/plain")
+                contentAsString(del) must contain("1")
+
+                // Volvemos a borrar la tarea y deberia dar error
+                val Some(error) = route(FakeRequest(DELETE,"/tasks/1"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+            }
+        }
     }
 }

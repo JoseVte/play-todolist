@@ -49,5 +49,15 @@ class ApplicationSpec extends Specification {
                 contentAsString(error) must contain ("404")
             }
         }
+
+        "crear una tarea" in {
+            running(FakeApplication()) {
+                val Some(form) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                status(form) must equalTo(CREATED)
+                contentType(form) must beSome.which(_ == "application/json")
+                contentAsString(form) must contain ("Test")
+            }
+        }
     }
 }

@@ -13,6 +13,11 @@ En este informe se van a describir todas las funcionalidades nuevas y los tests 
             - [1.1.2 Todas las tareas](#112-todas-las-tareas)
             - [1.1.3 Una tarea concreta](#113-una-tarea-concreta)
             - [1.1.4 Borrado de una tarea](#114-borrado-de-una-tarea)
+            - [1.1.5 Crear un usuario](#115-crear-un-usuario)
+            - [1.1.6 Leer un usuario](#116-leer-un-usuario)
+            - [1.1.7 Todos los usuarios](#117-todos-los-usuarios)
+            - [1.1.8 Modificar un usuario](#118-modificar-un-usuario)
+            - [1.1.9 Borrar un usuario](#119-borrar-un-usuario)
         - [1.2 Test en el controlador](#12-test-en-el-controlador)
             - [1.2.1 Ruta incorrecta y ruta por defecto](#121-ruta-incorrecta-y-ruta-por-defecto)
             - [1.2.2 Todas las tareas](#122-todas-las-tareas)
@@ -40,6 +45,7 @@ Se utilizan las siguientes variables en los tests:
 ```
 val label = "Tarea test"
 val nombreUsuario = "Test"
+val nombreNuevoUsuario = "Nuevo test"
 ```
 
 ##### 1.1.1 Crear una tarea
@@ -113,7 +119,8 @@ val nombreUsuario = "Test"
 
 ##### 1.1.4 Borrado de una tarea
 
-* Se comprueba si se borra una tarea para un usuario. Ademas comprobamos si no existe una tarea o un usuario
+* Se comprueba si se borra una tarea para un usuario. Ademas comprobamos si no existe una tarea o un usuario.
+* El código del test es siguiente:
 ```
 "borrado de una tarea" in {
     running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
@@ -137,6 +144,118 @@ val nombreUsuario = "Test"
 
         // Intentamos volver a borrar una tarea con otro id
         Task.delete(nombreUsuario,0L) must_== 0
+    }
+}
+```
+
+##### 1.1.5 Crear un usuario
+
+* Se comprueba si se crean nuevos usuarios. Tambien se comprueba si ya existe.
+* El código del test es siguiente:
+```
+"crear usuarios" in {  
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        // LLamamos al modelo para crear un usuario
+        // Comprobamos que se haya creado correctamente
+
+        val idTest = User.crearUser(nombreUsuario)
+        idTest must beSome
+
+        // Probamos a volver a crearlo para comprobar que no se puede crear
+        User.crearUser(nombreUsuario) must throwA[JdbcSQLException]
+    }
+}
+```
+
+##### 1.1.6 Leer un usuario
+
+* Se comprueba la lectura de un usuario. Tambien se comprueba si el usuario no existe.
+* El código del test es siguiente:
+```
+"extraer usuarios" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        // Primero creamos el usuario
+        val idTest = User.crearUser(nombreUsuario)
+        idTest must beSome
+
+        // LLamamos al modelo para leer un usuario
+        // Comprobamos que se haya extraido correctamente
+
+        val userTest = User.read(nombreUsuario)
+        userTest must beSome
+        userTest.get.id must equalTo(idTest.get)
+        userTest.get.nombre must equalTo(nombreUsuario)
+
+        //Probamos con un usuario que no deberia exista
+        val userTest2 = User.read(nombreNuevoUsuario)
+        userTest2 must beNone
+    }
+}
+```
+
+##### 1.1.7 Todos los usuarios
+
+* Se comprueba que se devuelva una lista de todos los usuarios.
+* El código del test es siguiente:
+```
+"todos los usuarios" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        // Primero creamos el usuario
+        val idTest = User.crearUser(nombreUsuario)
+        idTest must beSome
+
+        // LLamamos al modelo para leer todos los usuarios
+        val users = User.all
+        users.size must be_>=(1)
+        users must contain(User(idTest.get,nombreUsuario))
+    }
+}
+```
+
+##### 1.1.8 Modificar un usuario
+
+* Se comprueba si se modifica el nombre del usuario. Tambien se comprueba si no existe.
+* El código del test es siguiente:
+```
+"modificar usuarios" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        // Primero creamos el usuario
+        val idTest = User.crearUser(nombreUsuario)
+        idTest must beSome
+
+        // Llamamos al modelo para modificarlo
+        // Comprobamos el nuevo valor
+
+        val result = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+        result must beTrue
+
+        // Repetimos para comprobar que no lo encuentra
+        // y por lo tanto no puede modificarlo
+        val result2 = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+        result2 must beFalse
+    }
+}
+```
+
+##### 1.1.9 Borrar un usuario
+
+* Se comprueba si se puede borrar un usuario. Tambien se comprueba si no existe.
+* El código del test es siguiente:
+```
+"borrar usuarios" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        //Primero creamos un usuario
+        val idTest = User.crearUser(nombreUsuario)
+        idTest must beSome
+
+        //Probamos a borrarlo
+
+        val result = User.borrarUser(nombreUsuario)
+        result must beTrue
+
+        //Repetimos y da error
+        val result2 = User.borrarUser(nombreUsuario)
+        result2 must beFalse
     }
 }
 ```

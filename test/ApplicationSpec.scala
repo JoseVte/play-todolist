@@ -1,30 +1,85 @@
-import org.specs2.mutable._
-import org.specs2.runner._
-import org.junit.runner._
+package test
 
-import play.api.test._
+import org.specs2.mutable._
+
+import play.api.test._  
 import play.api.test.Helpers._
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
-@RunWith(classOf[JUnitRunner])
 class ApplicationSpec extends Specification {
 
-  "Application" should {
+    "Controlador Application" should {
 
-    "send 404 on a bad request" in new WithApplication{
-      route(FakeRequest(GET, "/boum")) must beNone
+        "devolver 404 en una ruta incorrecta" in {  
+            running(FakeApplication()) {  
+                route(FakeRequest(GET, "/incorrecto")) must beNone  
+            }
+        }
+
+        "pagina por defecto" in {  
+            running(FakeApplication()) {
+                val Some(home) = route(FakeRequest(GET, "/"))
+
+                status(home) must equalTo(SEE_OTHER)
+                redirectLocation(home) must beSome("/tasks")
+            }
+        }
+
+        "todas las tareas" in {
+            running(FakeApplication()) {
+                val Some(pag) = route(FakeRequest(GET,"/tasks"))
+
+                status(pag) must equalTo(OK)  
+                contentType(pag) must beSome.which(_ == "application/json")  
+                contentAsString(pag) must contain ("anonimo") 
+            }
+        }
+
+        "una tarea concreta" in {
+            running(FakeApplication()) {
+                val Some(pag) = route(FakeRequest(GET,"/tasks/1"))
+
+                status(pag) must equalTo(OK)
+                contentType(pag) must beSome.which(_ == "application/json")
+                contentAsString(pag) must contain ("\"id\":1")
+
+                // Comprobamos que una tarea no exista
+                val Some(error) = route(FakeRequest(GET,"/tasks/0"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain ("404")
+            }
+        }
+
+        "crear una tarea" in {
+            running(FakeApplication()) {
+                val Some(form) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                status(form) must equalTo(CREATED)
+                contentType(form) must beSome.which(_ == "application/json")
+                contentAsString(form) must contain ("Test")
+
+                // El formulario esta mal introducido
+                val Some(error) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody())
+                status(error) must equalTo(BAD_REQUEST)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("400")
+            }
+        }
+
+        "borrado de una tarea" in {
+            running(FakeApplication()) {
+                val Some(del) = route(FakeRequest(DELETE,"/tasks/1"))
+
+                status(del) must equalTo(OK)
+                contentType(del) must beSome.which(_ == "text/plain")
+                contentAsString(del) must contain("1")
+
+                // Volvemos a borrar la tarea y deberia dar error
+                val Some(error) = route(FakeRequest(DELETE,"/tasks/1"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+            }
+        }
     }
-
-    "render the index page" in new WithApplication{
-      val home = route(FakeRequest(GET, "/")).get
-
-      status(home) must equalTo(OK)
-      contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain ("Your new application is ready.")
-    }
-  }
 }

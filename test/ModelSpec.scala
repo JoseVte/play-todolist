@@ -135,5 +135,20 @@ class ModelSpec extends Specification {
                 userTest2 must beNone
             }
         }
+
+        "todos los usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos el usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // LLamamos al modelo para leer un usuario
+                // Comprobamos que se haya extraido correctamente
+
+                val users = User.all
+                users.size must be_>=(1)
+                users must contain(User(idTest.get,nombreUsuario))
+            }
+        }
     }  
 }

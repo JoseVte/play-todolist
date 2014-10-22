@@ -163,9 +163,25 @@ class ModelSpec extends Specification {
 
                 // Repetimos para comprobar que no lo encuentra
                 // y por lo tanto no puede modificarlo
-                /*val result2 = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
-                println(User.all)
-                result must beFalse*/
+                val result2 = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+                result2 must beFalse
+            }
+        }
+
+        "borrar usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                //Primero creamos un usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                //Probamos a borrarlo
+
+                val result = User.borrarUser(nombreUsuario)
+                result must beTrue
+
+                //Repetimos y da error
+                val result2 = User.borrarUser(nombreUsuario)
+                result2 must beFalse
             }
         }
     }  

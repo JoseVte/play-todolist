@@ -145,5 +145,25 @@ class ApplicationSpec extends Specification {
                 contentAsString(error) must contain ("404")
             }
         }
+
+        "borrado de una tarea de un usuario" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/4"))
+
+                status(del) must equalTo(OK)
+                contentType(del) must beSome.which(_ == "text/plain")
+                contentAsString(del) must contain("4")
+
+                // Volvemos a borrar la tarea y deberia dar error
+                val Some(error) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/1"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ class ModelSpec extends Specification {
     //Variables del test
     val label = "Tarea test"
     val nombreUsuario = "Test"
+    val nombreNuevoUsuario = "Nuevo test"
 
     "Modelo de Task" should {
         "crear tarea" in {  
@@ -97,6 +98,90 @@ class ModelSpec extends Specification {
 
                 // Intentamos volver a borrar una tarea con otro id
                 Task.delete(nombreUsuario,0L) must_== 0
+            }
+        }
+    }
+
+    "Modelo de User" should {
+        "crear usuarios" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // LLamamos al modelo para crear un usuario
+                // Comprobamos que se haya creado correctamente
+
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // Probamos a volver a crearlo para comprobar que no se puede crear
+                User.crearUser(nombreUsuario) must throwA[JdbcSQLException]
+            }
+        }
+
+        "extraer usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos el usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // LLamamos al modelo para leer un usuario
+                // Comprobamos que se haya extraido correctamente
+
+                val userTest = User.read(nombreUsuario)
+                userTest must beSome
+                userTest.get.id must equalTo(idTest.get)
+                userTest.get.nombre must equalTo(nombreUsuario)
+
+                //Probamos con un usuario que no deberia exista
+                val userTest2 = User.read(nombreNuevoUsuario)
+                userTest2 must beNone
+            }
+        }
+
+        "todos los usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos el usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // LLamamos al modelo para leer todos los usuarios
+                val users = User.all
+                users.size must be_>=(1)
+                users must contain(User(idTest.get,nombreUsuario))
+            }
+        }
+
+        "modificar usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos el usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // Llamamos al modelo para modificarlo
+                // Comprobamos el nuevo valor
+
+                val result = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+                result must beTrue
+
+                // Repetimos para comprobar que no lo encuentra
+                // y por lo tanto no puede modificarlo
+                val result2 = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+                result2 must beFalse
+            }
+        }
+
+        "borrar usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                //Primero creamos un usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                //Probamos a borrarlo
+
+                val result = User.borrarUser(nombreUsuario)
+                result must beTrue
+
+                //Repetimos y da error
+                val result2 = User.borrarUser(nombreUsuario)
+                result2 must beFalse
             }
         }
     }  

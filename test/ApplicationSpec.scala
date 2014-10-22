@@ -5,10 +5,14 @@ import org.specs2.mutable._
 import play.api.test._  
 import play.api.test.Helpers._
 
+import models.User
+
 class ApplicationSpec extends Specification {
+    // Variables de los tests
+    val usuarioTest="Test"
+    val usuarioIncorrecto="Error"
 
-    "Controlador Application" should {
-
+    "Controlador de la APP - Feature 1" should {
         "devolver 404 en una ruta incorrecta" in {  
             running(FakeApplication()) {  
                 route(FakeRequest(GET, "/incorrecto")) must beNone  
@@ -56,7 +60,7 @@ class ApplicationSpec extends Specification {
 
                 status(form) must equalTo(CREATED)
                 contentType(form) must beSome.which(_ == "application/json")
-                contentAsString(form) must contain ("Test")
+                contentAsString(form) must contain ("\"label\":\"Test\"")
 
                 // El formulario esta mal introducido
                 val Some(error) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody())
@@ -76,6 +80,86 @@ class ApplicationSpec extends Specification {
 
                 // Volvemos a borrar la tarea y deberia dar error
                 val Some(error) = route(FakeRequest(DELETE,"/tasks/1"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+            }
+        }
+    }
+
+    "Controlador de la APP - Feature 2" should {
+        "todas las tareas de un usuario" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks"))
+
+                status(pag) must equalTo(OK)  
+                contentType(pag) must beSome.which(_ == "application/json")  
+                contentAsString(pag) must contain (usuarioTest)
+
+                //Comprobamos un usuario que no exista
+                val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/tasks"))
+
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+            }
+        }
+
+        "crear una tarea para un usuario" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                status(form) must equalTo(CREATED)
+                contentType(form) must beSome.which(_ == "application/json")
+                contentAsString(form) must contain (usuarioTest)
+                contentAsString(form) must contain ("\"label\":\"Test\"")
+
+                // El formulario esta mal introducido
+                val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody())
+                status(error) must equalTo(BAD_REQUEST)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("400")
+            }
+        }
+
+        "una tarea concreta para un usuario" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/4"))
+
+                status(pag) must equalTo(OK)
+                contentType(pag) must beSome.which(_ == "application/json")
+                contentAsString(pag) must contain ("\"label\":\"Test\"")
+
+                // Comprobamos que una tarea no exista
+                val Some(error) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/0"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain ("404")
+            }
+        }
+
+        "borrado de una tarea de un usuario" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/4"))
+
+                status(del) must equalTo(OK)
+                contentType(del) must beSome.which(_ == "text/plain")
+                contentAsString(del) must contain("4")
+
+                // Volvemos a borrar la tarea y deberia dar error
+                val Some(error) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/1"))
                 status(error) must equalTo(NOT_FOUND)
                 contentType(error) must beSome.which(_ == "text/html")
                 contentAsString(error) must contain("404")

@@ -41,7 +41,7 @@ object User{
 
    def borrarUser(nombre: String): Boolean = {
       val result: Int = DB.withConnection{
-         implicit c => SQL("delete from usuarios u where u.nombre={nombreAnt}").on("nombre" -> nombre).executeUpdate()
+         implicit c => SQL("delete from usuarios u where u.nombre={nombre}").on("nombre" -> nombre).executeUpdate()
       }
       return result==1
    }

@@ -14,6 +14,7 @@ class ModelSpec extends Specification {
     //Variables del test
     val label = "Tarea test"
     val nombreUsuario = "Test"
+    val nombreNuevoUsuario = "Nuevo test"
 
     "Modelo de Task" should {
         "crear tarea" in {  
@@ -97,6 +98,21 @@ class ModelSpec extends Specification {
 
                 // Intentamos volver a borrar una tarea con otro id
                 Task.delete(nombreUsuario,0L) must_== 0
+            }
+        }
+    }
+
+    "Modelo de User" should {
+        "crear usuarios" in {  
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // LLamamos al modelo para crear un usuario
+                // Comprobamos que se haya creado correctamente
+
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // Probamos a volver a crearlo para comprobar que no se puede crear
+                User.crearUser(nombreUsuario) must throwA[JdbcSQLException]
             }
         }
     }  

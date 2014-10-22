@@ -79,7 +79,7 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos una tarea de prueba
                 User.crearUser(nombreUsuario)
-                val idTest = Task.create(label,nombreUsuario,null)
+                var idTest = Task.create(label,nombreUsuario,null)
 
                 // Borramos la tarea creada
                 val ok = Task.delete(nombreUsuario,idTest)
@@ -88,9 +88,13 @@ class ModelSpec extends Specification {
 
                 // Intentamos volver a borrar la misma tarea
                 Task.delete(nombreUsuario,idTest) must_== 0
+                
                 // Intentamos volver a borrar una tarea de un usuario que no existe
+                idTest = Task.create(label,nombreUsuario,null)
                 Task.delete(null,idTest) must_== 0
+                idTest = Task.create(label,nombreUsuario,null)
                 Task.delete("",idTest) must_== 0
+
                 // Intentamos volver a borrar una tarea con otro id
                 Task.delete(nombreUsuario,0L) must_== 0
             }

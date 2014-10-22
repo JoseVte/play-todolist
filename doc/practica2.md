@@ -24,6 +24,10 @@ En este informe se van a describir todas las funcionalidades nuevas y los tests 
             - [1.2.3 Una tarea concreta](#123-una-tarea-concreta)
             - [1.2.4 Crear una tarea](#124-crear-una-tarea)
             - [1.2.5 Borrado de una tarea](#125-borrado-de-una-tarea)
+            - [1.2.6 Todos las tareas de un usuario](#126-todos-las-tareas-de-un-usuario)
+            - [1.2.7 Crear una tarea para un usuario](#127-crear-una-tarea-para-un-usuario)
+            - [1.2.8 Una tarea de un usuario](#128-una-tarea-de-un-usuario)
+            - [1.2.9 Borrado de una tarea de un usuario](#129-borrado-de-una-tarea-de-un-usuario)
 - [III. Repositorios](#iii-repositorios)
     - [Bitbucket](#bitbucket)
     - [Heroku](#heroku)
@@ -357,6 +361,104 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
         // Volvemos a borrar la tarea y deberia dar error
         val Some(error) = route(FakeRequest(DELETE,"/tasks/1"))
+        status(error) must equalTo(NOT_FOUND)
+        contentType(error) must beSome.which(_ == "text/html")
+        contentAsString(error) must contain("404")
+    }
+}
+```
+
+##### 1.2.6 Todos las tareas de un usuario
+
+* Comprobamos que devuelva una lista en **json**: 
+```
+"todas las tareas de un usuario" in {
+    running(FakeApplication()) {
+        // Se comprueba en otros test esta funcionalidad
+        User.crearUser(usuarioTest)
+        val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks"))
+
+        status(pag) must equalTo(OK)  
+        contentType(pag) must beSome.which(_ == "application/json")  
+        contentAsString(pag) must contain (usuarioTest)
+
+        //Comprobamos un usuario que no exista
+        val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/tasks"))
+
+        status(error) must equalTo(NOT_FOUND)
+        contentType(error) must beSome.which(_ == "text/html")
+        contentAsString(error) must contain("404")
+    }
+}
+```
+
+##### 1.2.7 Crear una tarea para un usuario
+
+* Comprobamos la creacion de una tarea. Comprobamos si no se introducen los parametros en el formulario HTML correctamente:
+```
+"crear una tarea para un usuario" in {
+    running(FakeApplication()) {
+        // Se comprueba en otros test esta funcionalidad
+        User.crearUser(usuarioTest)
+        val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+        status(form) must equalTo(CREATED)
+        contentType(form) must beSome.which(_ == "application/json")
+        contentAsString(form) must contain (usuarioTest)
+        contentAsString(form) must contain ("\"label\":\"Test\"")
+
+        // El formulario esta mal introducido
+        val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody())
+        status(error) must equalTo(BAD_REQUEST)
+        contentType(error) must beSome.which(_ == "text/html")
+        contentAsString(error) must contain("400")
+    }
+}
+```
+
+##### 1.2.8 Una tarea de un usuario
+
+* Comprobamos una tarea concreta. Tambien comprobamos que la tarea no exista:
+```
+"una tarea concreta para un usuario" in {
+    running(FakeApplication()) {
+        // Se comprueba en otros test esta funcionalidad
+        User.crearUser(usuarioTest)
+        val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+        val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/4"))
+
+        status(pag) must equalTo(OK)
+        contentType(pag) must beSome.which(_ == "application/json")
+        contentAsString(pag) must contain ("\"label\":\"Test\"")
+
+        // Comprobamos que una tarea no exista
+        val Some(error) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/0"))
+        status(error) must equalTo(NOT_FOUND)
+        contentType(error) must beSome.which(_ == "text/html")
+        contentAsString(error) must contain ("404")
+    }
+}
+```
+
+##### 1.2.9 Borrado de una tarea de un usuario
+
+* Comprobamos que se borre correctamente. Tambien se comprueba si la tarea no existe:
+```
+"borrado de una tarea de un usuario" in {
+    running(FakeApplication()) {
+        // Se comprueba en otros test esta funcionalidad
+        User.crearUser(usuarioTest)
+        val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+        val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/4"))
+
+        status(del) must equalTo(OK)
+        contentType(del) must beSome.which(_ == "text/plain")
+        contentAsString(del) must contain("4")
+
+        // Volvemos a borrar la tarea y deberia dar error
+        val Some(error) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/1"))
         status(error) must equalTo(NOT_FOUND)
         contentType(error) must beSome.which(_ == "text/html")
         contentAsString(error) must contain("404")

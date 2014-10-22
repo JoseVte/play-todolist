@@ -125,5 +125,25 @@ class ApplicationSpec extends Specification {
                 contentAsString(error) must contain("400")
             }
         }
+
+        "una tarea concreta para un usuario" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/4"))
+
+                status(pag) must equalTo(OK)
+                contentType(pag) must beSome.which(_ == "application/json")
+                contentAsString(pag) must contain ("\"label\":\"Test\"")
+
+                // Comprobamos que una tarea no exista
+                val Some(error) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/0"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain ("404")
+            }
+        }
     }
 }

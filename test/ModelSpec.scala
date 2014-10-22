@@ -142,12 +142,30 @@ class ModelSpec extends Specification {
                 val idTest = User.crearUser(nombreUsuario)
                 idTest must beSome
 
-                // LLamamos al modelo para leer un usuario
-                // Comprobamos que se haya extraido correctamente
-
+                // LLamamos al modelo para leer todos los usuarios
                 val users = User.all
                 users.size must be_>=(1)
                 users must contain(User(idTest.get,nombreUsuario))
+            }
+        }
+
+        "modificar usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos el usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // Llamamos al modelo para modificarlo
+                // Comprobamos el nuevo valor
+
+                val result = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+                result must beTrue
+
+                // Repetimos para comprobar que no lo encuentra
+                // y por lo tanto no puede modificarlo
+                /*val result2 = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+                println(User.all)
+                result must beFalse*/
             }
         }
     }  

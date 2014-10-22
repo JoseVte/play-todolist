@@ -91,7 +91,7 @@ object Application extends Controller {
 
    def newTask(usuario: String) = Action { implicit request =>
       taskForm.bindFromRequest.fold(
-         errors => BadRequest,
+         errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
          task => {
             if(User.comprobarUsuario(usuario)){
                val id = Task.create(task.label,usuario,task.fechaFin)

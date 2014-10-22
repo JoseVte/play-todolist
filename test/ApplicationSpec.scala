@@ -57,6 +57,12 @@ class ApplicationSpec extends Specification {
                 status(form) must equalTo(CREATED)
                 contentType(form) must beSome.which(_ == "application/json")
                 contentAsString(form) must contain ("Test")
+
+                // El formulario esta mal introducido
+                val Some(error) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody())
+                status(error) must equalTo(BAD_REQUEST)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("400")
             }
         }
 

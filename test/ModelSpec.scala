@@ -115,5 +115,25 @@ class ModelSpec extends Specification {
                 User.crearUser(nombreUsuario) must throwA[JdbcSQLException]
             }
         }
+
+        "extraer usuarios" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // Primero creamos el usuario
+                val idTest = User.crearUser(nombreUsuario)
+                idTest must beSome
+
+                // LLamamos al modelo para leer un usuario
+                // Comprobamos que se haya extraido correctamente
+
+                val userTest = User.read(nombreUsuario)
+                userTest must beSome
+                userTest.get.id must equalTo(idTest.get)
+                userTest.get.nombre must equalTo(nombreUsuario)
+
+                //Probamos con un usuario que no deberia exista
+                val userTest2 = User.read(nombreNuevoUsuario)
+                userTest2 must beNone
+            }
+        }
     }  
 }

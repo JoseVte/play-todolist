@@ -60,7 +60,7 @@ class ApplicationSpec extends Specification {
 
                 status(form) must equalTo(CREATED)
                 contentType(form) must beSome.which(_ == "application/json")
-                contentAsString(form) must contain ("Test")
+                contentAsString(form) must contain ("\"label\":\"Test\"")
 
                 // El formulario esta mal introducido
                 val Some(error) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody())
@@ -104,6 +104,25 @@ class ApplicationSpec extends Specification {
                 status(error) must equalTo(NOT_FOUND)
                 contentType(error) must beSome.which(_ == "text/html")
                 contentAsString(error) must contain("404")
+            }
+        }
+
+        "crear una tarea para un usuario" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
+
+                status(form) must equalTo(CREATED)
+                contentType(form) must beSome.which(_ == "application/json")
+                contentAsString(form) must contain (usuarioTest)
+                contentAsString(form) must contain ("\"label\":\"Test\"")
+
+                // El formulario esta mal introducido
+                val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody())
+                status(error) must equalTo(BAD_REQUEST)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("400")
             }
         }
     }

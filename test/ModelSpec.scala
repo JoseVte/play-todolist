@@ -10,11 +10,16 @@ import org.h2.jdbc.JdbcSQLException
 import models.Task
 import models.User
 
+import java.util.Date
+import java.text.SimpleDateFormat
+
 class ModelSpec extends Specification {
     //Variables del test
     val label = "Tarea test"
     val nombreUsuario = "Test"
     val nombreNuevoUsuario = "Nuevo test"
+    val fecha:Option[Date] = Some(new Date)
+    val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
 
     "Modelo de Task" should {
         "crear tarea" in {  
@@ -102,6 +107,21 @@ class ModelSpec extends Specification {
         }
     }
 
+    "Modelo de Task con fechas" should {
+        "crear una tarea con fecha" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // LLamamos al modelo para crear una tarea
+                // Comprobamos que se haya creado correctamente
+
+                User.crearUser(nombreUsuario)
+                val idTest = Task.create(label,nombreUsuario,fecha)
+                idTest must be_>(0L)
+                val task = Task.read(nombreUsuario,idTest)
+                dateFormat.format(task.get.fechaFin.get) must beEqualTo(dateFormat.format(fecha.get))
+            }
+        }
+    }
+
     "Modelo de User" should {
         "crear usuarios" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
@@ -184,5 +204,5 @@ class ModelSpec extends Specification {
                 result2 must beFalse
             }
         }
-    }  
+    }
 }

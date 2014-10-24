@@ -18,6 +18,9 @@ En este informe se van a describir todas las funcionalidades nuevas y los tests 
             - [1.1.7 Todos los usuarios](#117-todos-los-usuarios)
             - [1.1.8 Modificar un usuario](#118-modificar-un-usuario)
             - [1.1.9 Borrar un usuario](#119-borrar-un-usuario)
+            - [1.1.10 Crear una tarea con fecha](#1110-crear-una-tarea-con-fecha)
+            - [1.1.11 Borrar tareas por fecha](#1111-borrar-tareas-por-fecha)
+            - [1.1.12 Mostrar tareas por fecha](#1112-mostrar-tareas-por-fecha)
         - [1.2 Test en el controlador](#12-test-en-el-controlador)
             - [1.2.1 Ruta incorrecta y ruta por defecto](#121-ruta-incorrecta-y-ruta-por-defecto)
             - [1.2.2 Todas las tareas](#122-todas-las-tareas)
@@ -260,6 +263,73 @@ val nombreNuevoUsuario = "Nuevo test"
         //Repetimos y da error
         val result2 = User.borrarUser(nombreUsuario)
         result2 must beFalse
+    }
+}
+```
+
+##### 1.1.10 Crear una tarea con fecha
+
+* Comprobamos el crear una tarea con una fecha.
+* El código del test es siguiente:
+```
+"crear una tarea con fecha" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        // LLamamos al modelo para crear una tarea
+        // Comprobamos que se haya creado correctamente
+
+        User.crearUser(nombreUsuario)
+        val idTest = Task.create(label,nombreUsuario,fecha)
+        idTest must be_>(0L)
+        val task = Task.read(nombreUsuario,idTest)
+        dateFormat.format(task.get.fechaFin.get) must beEqualTo(dateFormat.format(fecha.get))
+    }
+}
+```
+
+##### 1.1.11 Borrar tareas por fecha
+
+* Comprobamos el borrar una tarea hasta una fecha.
+* El código del test es siguiente:
+```
+"borrar tareas por fecha" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        // LLamamos al modelo para crear una tarea
+        // Comprobamos que se haya creado correctamente
+
+        User.crearUser(nombreUsuario)
+        val idTest = Task.create(label,nombreUsuario,fecha)
+
+        val result = Task.deleteDate(nombreUsuario,fecha.get)
+        result must_== 1
+        Task.all(nombreUsuario) must be empty
+
+        // Intentamos volver a borrar una tarea con la misma fecha
+        Task.deleteDate(nombreUsuario,fecha.get) must_== 0
+    }
+}
+```
+
+##### 1.1.12 Mostrar tareas por fecha
+
+* Se comprueba que se devuelva una lista de todas las tareas hasta una fecha.
+* El código del test es siguiente:
+```
+"mostrar tareas por fecha" in {
+    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        // LLamamos al modelo para crear una tarea
+        // Comprobamos que se haya creado correctamente
+
+        User.crearUser(nombreUsuario)
+
+        Task.all(nombreUsuario,fecha.get) must be empty
+
+        val idTest = Task.create(label,nombreUsuario,fecha)
+
+        // Comprobamos todas las tareas
+        val lista = Task.all(nombreUsuario,fecha.get)
+        lista must be have size(1)
+        lista(0).id must_== idTest
+        lista(0).label must_== label
     }
 }
 ```

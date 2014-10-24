@@ -25,7 +25,7 @@ object Application extends Controller {
       mapping(
          "id" -> ignored(0L),
          "label" -> nonEmptyText,
-         "fechaFin" -> optional(date("dd/mm/yyyy"))
+         "fechaFin" -> optional(date(formatoParse))
       )(Task.apply)(Task.unapply)
    )
 

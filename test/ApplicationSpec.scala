@@ -7,10 +7,15 @@ import play.api.test.Helpers._
 
 import models.User
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.sql.Timestamp
+
 class ApplicationSpec extends Specification {
     // Variables de los tests
     val usuarioTest="Test"
     val usuarioIncorrecto="Error"
+    val fecha="24-10-2014"
 
     "Controlador de la APP - Feature 1" should {
         "devolver 404 en una ruta incorrecta" in {  
@@ -163,6 +168,33 @@ class ApplicationSpec extends Specification {
                 status(error) must equalTo(NOT_FOUND)
                 contentType(error) must beSome.which(_ == "text/html")
                 contentAsString(error) must contain("404")
+            }
+        }
+    }
+
+    "Controlador de la APP - Feature 3" should {
+        "crear una tarea con fecha" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+                    withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
+
+                status(form) must equalTo(CREATED)
+                contentType(form) must beSome.which(_ == "application/json")
+                contentAsString(form) must contain (usuarioTest)
+                contentAsString(form) must contain ("\"label\":\"Test\"")
+                val dateFormat = new SimpleDateFormat("dd-MM-yyy");
+                val parsedDate = dateFormat.parse(fecha);
+                val timestamp = new Timestamp(parsedDate.getTime());
+                (contentAsJson(form) \ usuarioTest \\ "fechaFin").map(_.as[Date]) must contain (timestamp)
+
+                // El formulario esta mal introducido
+                val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+                    withFormUrlEncodedBody(("fechaFin","2014")))
+                status(error) must equalTo(BAD_REQUEST)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("400")
             }
         }
     }

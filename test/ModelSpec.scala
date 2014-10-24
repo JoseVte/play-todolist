@@ -56,7 +56,6 @@ class ModelSpec extends Specification {
 
                 // Probamos a listar una tarea sin usuario ""
                 Task.all("") must be empty
-
             }
         }
 
@@ -221,5 +220,25 @@ class ModelSpec extends Specification {
                 Task.deleteDate(nombreUsuario,fecha.get) must_== 0
             }
         }
+
+        "mostrar tareas por fecha" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // LLamamos al modelo para crear una tarea
+                // Comprobamos que se haya creado correctamente
+
+                User.crearUser(nombreUsuario)
+
+                Task.all(nombreUsuario,fecha.get) must be empty
+
+                val idTest = Task.create(label,nombreUsuario,fecha)
+
+                // Comprobamos todas las tareas
+                val lista = Task.all(nombreUsuario,fecha.get)
+                lista must be have size(1)
+                lista(0).id must_== idTest
+                lista(0).label must_== label
+            }
+        }
+
     }
 }

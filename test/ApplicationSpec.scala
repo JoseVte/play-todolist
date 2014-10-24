@@ -16,6 +16,7 @@ class ApplicationSpec extends Specification {
     val usuarioTest="Test"
     val usuarioIncorrecto="Error"
     val fecha="24-10-2014"
+    val fechaIncorrecta="24-10"
 
     "Controlador de la APP - Feature 1" should {
         "devolver 404 en una ruta incorrecta" in {  
@@ -191,10 +192,43 @@ class ApplicationSpec extends Specification {
 
                 // El formulario esta mal introducido
                 val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
-                    withFormUrlEncodedBody(("fechaFin","2014")))
+                    withFormUrlEncodedBody(("fechaFin",fechaIncorrecta)))
                 status(error) must equalTo(BAD_REQUEST)
                 contentType(error) must beSome.which(_ == "text/html")
                 contentAsString(error) must contain("400")
+            }
+        }
+
+        "borrado de tareas por fecha" in {
+            running(FakeApplication()) {
+                // Se comprueba en otros test esta funcionalidad
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+                    withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
+                val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+                    withFormUrlEncodedBody(("label","Test 2"),("fechaFin",fecha)))
+
+                val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/"+fecha))
+
+                status(del) must equalTo(OK)
+                contentType(del) must beSome.which(_ == "text/plain")
+                contentAsString(del) must contain ("2")
+                contentAsString(del) must contain (usuarioTest)
+                contentAsString(del) must contain (fecha)
+
+                //Usuario incorrecto
+                val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/tasks/"+fecha))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+                contentAsString(error) must contain(usuarioIncorrecto)
+
+                //Fecha incorrecta
+                val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/"+fechaIncorrecta))
+                status(error2) must equalTo(BAD_REQUEST)
+                contentType(error2) must beSome.which(_ == "text/html")
+                contentAsString(error2) must contain("400")
+                contentAsString(error2) must contain(fechaIncorrecta)
             }
         }
     }

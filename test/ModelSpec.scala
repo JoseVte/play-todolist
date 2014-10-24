@@ -107,21 +107,6 @@ class ModelSpec extends Specification {
         }
     }
 
-    "Modelo de Task con fechas" should {
-        "crear una tarea con fecha" in {
-            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                // LLamamos al modelo para crear una tarea
-                // Comprobamos que se haya creado correctamente
-
-                User.crearUser(nombreUsuario)
-                val idTest = Task.create(label,nombreUsuario,fecha)
-                idTest must be_>(0L)
-                val task = Task.read(nombreUsuario,idTest)
-                dateFormat.format(task.get.fechaFin.get) must beEqualTo(dateFormat.format(fecha.get))
-            }
-        }
-    }
-
     "Modelo de User" should {
         "crear usuarios" in {  
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
@@ -202,6 +187,38 @@ class ModelSpec extends Specification {
                 //Repetimos y da error
                 val result2 = User.borrarUser(nombreUsuario)
                 result2 must beFalse
+            }
+        }
+    }
+
+    "Modelo de Task con fechas" should {
+        "crear una tarea con fecha" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // LLamamos al modelo para crear una tarea
+                // Comprobamos que se haya creado correctamente
+
+                User.crearUser(nombreUsuario)
+                val idTest = Task.create(label,nombreUsuario,fecha)
+                idTest must be_>(0L)
+                val task = Task.read(nombreUsuario,idTest)
+                dateFormat.format(task.get.fechaFin.get) must beEqualTo(dateFormat.format(fecha.get))
+            }
+        }
+
+        "borrar tareas por fecha" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                // LLamamos al modelo para crear una tarea
+                // Comprobamos que se haya creado correctamente
+
+                User.crearUser(nombreUsuario)
+                val idTest = Task.create(label,nombreUsuario,fecha)
+
+                val result = Task.deleteDate(nombreUsuario,fecha.get)
+                result must_== 1
+                Task.all(nombreUsuario) must be empty
+
+                // Intentamos volver a borrar una tarea con la misma fecha
+                Task.deleteDate(nombreUsuario,fecha.get) must_== 0
             }
         }
     }

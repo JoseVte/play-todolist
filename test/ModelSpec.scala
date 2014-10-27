@@ -21,8 +21,8 @@ class ModelSpec extends Specification {
     val nombreNuevoUsuario = "Nuevo test"
     val fecha:Option[Date] = Some(new Date)
     val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-    val nombreCategoria = "Categoria test"
-    val nombreNuevoCategoria = "Nueva categoria test"
+    val nombreCategoria = "CategoriaTest"
+    val nombreNuevoCategoria = "NuevaCategoriaTest"
 
     "Modelo de Task" should {
         "crear tarea" in {  

@@ -9,6 +9,7 @@ import org.h2.jdbc.JdbcSQLException
 
 import models.Task
 import models.User
+import models.Categoria
 
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -20,6 +21,8 @@ class ModelSpec extends Specification {
     val nombreNuevoUsuario = "Nuevo test"
     val fecha:Option[Date] = Some(new Date)
     val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val nombreCategoria = "Categoria test"
+    val nombreNuevoCategoria = "Nueva categoria test"
 
     "Modelo de Task" should {
         "crear tarea" in {  
@@ -239,6 +242,59 @@ class ModelSpec extends Specification {
                 lista(0).label must_== label
             }
         }
+    }
 
+    "Modelo de Categoria" should {
+        "crear categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+
+                cat must be_>(0L)
+            }
+        }
+
+        "mostrar categorias" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+
+                val cats = Categoria.all(nombreUsuario)
+                cats must be have size(1)
+            }
+        }
+
+        "modificar categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+
+                val num = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
+                num must equalTo(1)
+            }
+        }
+
+        "borrar categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+
+                val ok = Categoria.delete(nombreUsuario,nombreCategoria)
+                ok must equalTo(1)
+            }
+        }
+        /* no compilaria
+        "añadir tareas a categoria" in {
+
+        }
+
+        "mostrar todas las tareas de una categoria" in {
+
+        }
+
+        "quitar tareas de una categoria" in {
+
+        }
+        */
     }
 }

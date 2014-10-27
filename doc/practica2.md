@@ -31,6 +31,9 @@ En este informe se van a describir todas las funcionalidades nuevas y los tests 
             - [1.2.7 Crear una tarea para un usuario](#127-crear-una-tarea-para-un-usuario)
             - [1.2.8 Una tarea de un usuario](#128-una-tarea-de-un-usuario)
             - [1.2.9 Borrado de una tarea de un usuario](#129-borrado-de-una-tarea-de-un-usuario)
+            - [1.2.10 Crear una tarea con fecha](#1210-crear-una-tarea-con-fecha)
+            - [1.2.11 Borrado de tareas por fecha](#1211-borrado-de-tareas-por-fecha)
+            - [1.2.12 Mostrar tareas por fecha](#1212-mostrar-tareas-por-fecha)
 - [III. Repositorios](#iii-repositorios)
     - [Bitbucket](#bitbucket)
     - [Heroku](#heroku)
@@ -532,6 +535,110 @@ Todos los tests para comprobar que el controlador funcione correctamente.
         status(error) must equalTo(NOT_FOUND)
         contentType(error) must beSome.which(_ == "text/html")
         contentAsString(error) must contain("404")
+    }
+}
+```
+
+##### 1.2.10 Crear una tarea con fecha
+
+* Creamos una tarea con una fecha. Comprobamos si se introduce una fecha en un formato incorrecto:
+```
+"crear una tarea con fecha" in {
+    running(FakeApplication()) {
+        // Se comprueba en otros test esta funcionalidad
+        User.crearUser(usuarioTest)
+        val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+            withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
+
+        status(form) must equalTo(CREATED)
+        contentType(form) must beSome.which(_ == "application/json")
+        contentAsString(form) must contain (usuarioTest)
+        contentAsString(form) must contain ("\"label\":\"Test\"")
+        val dateFormat = new SimpleDateFormat("dd-MM-yyy");
+        val parsedDate = dateFormat.parse(fecha);
+        val timestamp = new Timestamp(parsedDate.getTime());
+        (contentAsJson(form) \ usuarioTest \\ "fechaFin").map(_.as[Date]) must contain (timestamp)
+
+        // El formulario esta mal introducido
+        val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+            withFormUrlEncodedBody(("fechaFin",fechaIncorrecta)))
+        status(error) must equalTo(BAD_REQUEST)
+        contentType(error) must beSome.which(_ == "text/html")
+        contentAsString(error) must contain("400")
+    }
+}
+```
+
+##### 1.2.11 Borrado de tareas por fecha
+
+* Se comprueba que se borren las tareas. Tambien se comprueba si el usuario no existe o la fecha no tiene el formato correcto:
+```
+"borrado de tareas por fecha" in {
+    running(FakeApplication()) {
+        // Se comprueba en otros test esta funcionalidad
+        User.crearUser(usuarioTest)
+        val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+            withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
+        val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+            withFormUrlEncodedBody(("label","Test 2"),("fechaFin",fecha)))
+
+        val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/"+fecha))
+
+        status(del) must equalTo(OK)
+        contentType(del) must beSome.which(_ == "text/plain")
+        contentAsString(del) must contain ("2")
+        contentAsString(del) must contain (usuarioTest)
+        contentAsString(del) must contain (fecha)
+
+        //Usuario incorrecto
+        val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/tasks/"+fecha))
+        status(error) must equalTo(NOT_FOUND)
+        contentType(error) must beSome.which(_ == "text/html")
+        contentAsString(error) must contain("404")
+        contentAsString(error) must contain(usuarioIncorrecto)
+
+        //Fecha incorrecta
+        val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/"+fechaIncorrecta))
+        status(error2) must equalTo(BAD_REQUEST)
+        contentType(error2) must beSome.which(_ == "text/html")
+        contentAsString(error2) must contain("400")
+        contentAsString(error2) must contain(fechaIncorrecta)
+    }
+}
+```
+
+##### 1.2.12 Mostrar tareas por fecha
+
+* Comprobamos que se devuelve el **json** correctamente. Tambien se comprueba si el usuario no existe o la fecha no tiene el formato correcto:
+```
+"mostrar tareas por fecha" in {
+    running(FakeApplication()) {
+        User.crearUser(usuarioTest)
+        val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+            withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
+        val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+            withFormUrlEncodedBody(("label","Test 2"),("fechaFin",fecha)))
+
+        val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/finalizadas/"+fecha))
+
+        status(pag) must equalTo(OK)
+        contentType(pag) must beSome.which(_ == "application/json")
+        contentAsString(pag) must contain("Test")
+        contentAsString(pag) must contain(usuarioTest)
+
+        //Usuario incorrecto
+        val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/tasks/finalizadas/"+fecha))
+        status(error) must equalTo(NOT_FOUND)
+        contentType(error) must beSome.which(_ == "text/html")
+        contentAsString(error) must contain("404")
+        contentAsString(error) must contain(usuarioIncorrecto)
+
+        //Fecha incorrecta
+        val Some(error2) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/finalizadas/"+fechaIncorrecta))
+        status(error2) must equalTo(BAD_REQUEST)
+        contentType(error2) must beSome.which(_ == "text/html")
+        contentAsString(error2) must contain("400")
+        contentAsString(error2) must contain(fechaIncorrecta)
     }
 }
 ```

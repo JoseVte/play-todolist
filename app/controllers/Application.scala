@@ -82,7 +82,7 @@ object Application extends Controller {
             val json = Json.toJson(Task.all(usuario,fechaParse))
             Ok(json)
          } else {
-            NotFound(errores("Error 400: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
+            BadRequest(errores("Error 400: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
          }
       } else {
          NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")

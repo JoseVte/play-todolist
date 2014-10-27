@@ -231,5 +231,36 @@ class ApplicationSpec extends Specification {
                 contentAsString(error2) must contain(fechaIncorrecta)
             }
         }
+
+        "mostrar tareas por fecha" in {
+            running(FakeApplication()) {
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+                    withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
+                val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
+                    withFormUrlEncodedBody(("label","Test 2"),("fechaFin",fecha)))
+
+                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/finalizadas/"+fecha))
+
+                status(pag) must equalTo(OK)
+                contentType(pag) must beSome.which(_ == "application/json")
+                contentAsString(pag) must contain("Test")
+                contentAsString(pag) must contain(usuarioTest)
+
+                //Usuario incorrecto
+                val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/tasks/finalizadas/"+fecha))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+                contentAsString(error) must contain(usuarioIncorrecto)
+
+                //Fecha incorrecta
+                val Some(error2) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/finalizadas/"+fechaIncorrecta))
+                status(error2) must equalTo(BAD_REQUEST)
+                contentType(error2) must beSome.which(_ == "text/html")
+                contentAsString(error2) must contain("400")
+                contentAsString(error2) must contain(fechaIncorrecta)
+            }
+        }
     }
 }

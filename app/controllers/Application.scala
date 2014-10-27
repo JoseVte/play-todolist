@@ -25,7 +25,7 @@ object Application extends Controller {
       mapping(
          "id" -> ignored(0L),
          "label" -> nonEmptyText,
-         "fechaFin" -> optional(date("dd/mm/yyyy"))
+         "fechaFin" -> optional(date(formatoParse))
       )(Task.apply)(Task.unapply)
    )
 
@@ -82,7 +82,7 @@ object Application extends Controller {
             val json = Json.toJson(Task.all(usuario,fechaParse))
             Ok(json)
          } else {
-            NotFound(errores("Error 400: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
+            BadRequest(errores("Error 400: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
          }
       } else {
          NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
@@ -125,7 +125,7 @@ object Application extends Controller {
             val numRows : Int = Task.deleteDate(usuario,fechaParse)
             Ok("Se han borrado "+numRows+" de tareas del usuario "+usuario+" hasta la fecha "+fecha)
          } else {
-            NotFound(errores("Error 400: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
+            BadRequest(errores("Error 400: La fecha ("+fecha+") no esta en el formato correcto")).as("text/html")
          }
       } else {
          NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")

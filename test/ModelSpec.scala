@@ -343,5 +343,20 @@ class ModelSpec extends Specification {
                 error must equalTo(0)
             }
         }
+
+        "modificar la categoria de una tarea" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+                User.crearUser(nombreUsuario)
+                Categoria.create(nombreUsuario,nombreCategoria)
+                Categoria.create(nombreUsuario,nombreNuevoCategoria)
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+
+                val ok = Task.modificarCategoria(nombreUsuario,nombreNuevoCategoria,idTest)
+                ok must beTrue
+
+                val error = Task.modificarCategoria(nombreNuevoUsuario,nombreNuevoCategoria,idTest)
+                error must beFalse
+            }
+        }
     }
 }

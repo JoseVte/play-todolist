@@ -6,17 +6,24 @@ import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 
-case class Categoria(user: String, nombre: String)
+case class Categoria(usuario: String, nombreCategoria: String)
 
 object Categoria {
-
-   def all(usuario: String) = {
-      List(1)
+   val categoria = {
+      get[String]("usuario") ~
+      get[String]("nombreCategoria") map{
+         case usuario~nombreCategoria => Categoria(usuario,nombreCategoria)
+      }
    }
 
-   def create(usuario: String, nombre: String): Int = DB.withConnection {
-      implicit c => SQL("INSERT INTO categorias (usuario,nombreCategoria) VALUES ({usuario},{nombre})")
-         .on("usuario" -> usuario,"nombre" -> nombre).executeUpdate()
+   def all(usuario: String): List[Categoria] = DB.withConnection {
+      implicit c => SQL("SELECT * FROM categorias WHERE usuario = {usuario}")
+         .on("usuario" -> usuario).as(categoria *)
+   }
+
+   def create(usuario: String, nombreCategoria: String): Int = DB.withConnection {
+      implicit c => SQL("INSERT INTO categorias (usuario,nombreCategoria) VALUES ({usuario},{nombreCategoria})")
+         .on("usuario" -> usuario,"nombreCategoria" -> nombreCategoria).executeUpdate()
    }
 
    def update(usuario: String, nombreAnt: String, nombreNuevo: String) = {

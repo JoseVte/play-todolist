@@ -264,6 +264,11 @@ class ModelSpec extends Specification {
 
                 val cats = Categoria.all(nombreUsuario)
                 cats must be have size(1)
+                cats(0).usuario must_== nombreUsuario
+                cats(0).nombreCategoria must_== nombreCategoria
+
+                // Probamos a listar una tarea sin usuario ""
+                Categoria.all("") must be empty
             }
         }
 

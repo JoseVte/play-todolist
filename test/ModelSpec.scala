@@ -318,9 +318,15 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
-
                 val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
-                idTest must be_>(0L)
+
+                val tareas = Task.all(nombreUsuario,nombreCategoria)
+                tareas must be have size(1)
+                tareas(0).id must_== idTest
+                tareas(0).label must_== label
+
+                // Probamos a listar una tarea sin usuario ""
+                Task.all(nombreUsuario,"") must be empty
             }
         }
 

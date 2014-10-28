@@ -14,8 +14,9 @@ object Categoria {
       List(1)
    }
 
-   def create(usuario: String, nombre: String) = {
-      Some(1L)
+   def create(usuario: String, nombre: String): Int = DB.withConnection {
+      implicit c => SQL("INSERT INTO categorias (usuario,nombreCategoria) VALUES ({usuario},{nombre})")
+         .on("usuario" -> usuario,"nombre" -> nombre).executeUpdate()
    }
 
    def update(usuario: String, nombreAnt: String, nombreNuevo: String) = {

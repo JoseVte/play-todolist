@@ -248,16 +248,19 @@ class ModelSpec extends Specification {
         "crear categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
-                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
-                cat must be_>(0L)
+                cat must be_>(0)
+
+                // Probamos a crear una cateogria sin usuario null
+                Categoria.create(null,nombreCategoria) must throwA[JdbcSQLException]
             }
         }
 
         "mostrar categorias" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
-                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val cats = Categoria.all(nombreUsuario)
                 cats must be have size(1)
@@ -267,7 +270,7 @@ class ModelSpec extends Specification {
         "modificar categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
-                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val num = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
                 num must equalTo(1)
@@ -277,7 +280,7 @@ class ModelSpec extends Specification {
         "borrar categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
-                val Some(cat) = Categoria.create(nombreUsuario,nombreCategoria)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val ok = Categoria.delete(nombreUsuario,nombreCategoria)
                 ok must equalTo(1)

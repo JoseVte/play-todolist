@@ -24,11 +24,13 @@ object Task {
    }
 
    def all(usuario: String, fecha: Date): List[Task] = DB.withConnection{
-      implicit c => SQL("select * from task where usuario = {usuario} and fechaFin <= {fecha}").on("usuario" -> usuario,"fecha" -> fecha).as(task *)
+      implicit c => SQL("select * from task where usuario = {usuario} and fechaFin <= {fecha}")
+      .on("usuario" -> usuario,"fecha" -> fecha).as(task *)
    }
 
    def all(usuario: String, categoria: String): List[Task] = DB.withConnection {
-      implicit c => SQL("select * from task where usuario = {usuario} and categoria = {categoria}").on("usuario" -> usuario, "categoria" -> categoria).as(task *)
+      implicit c => SQL("select * from task where usuario = {usuario} and categoria = {categoria}")
+      .on("usuario" -> usuario, "categoria" -> categoria).as(task *)
    }
 
    def read(usuario: String, id: Long): Option[Task] = DB.withConnection{ 
@@ -65,21 +67,18 @@ object Task {
       return idNuevo
    }
 
-   def delete(usuario: String, id: Long) : Int = {
-      var numRows = 0
-      DB.withConnection{
-         implicit c => 
-            numRows = SQL("delete from task where id = {id} and usuario = {usuario}").on("id" -> id,"usuario" -> usuario).executeUpdate()
-      }
-      return numRows
+   def delete(usuario: String, id: Long) : Int = DB.withConnection{
+      implicit c => SQL("delete from task where id = {id} and usuario = {usuario}")
+         .on("id" -> id,"usuario" -> usuario).executeUpdate()
    }
 
-   def deleteDate(usuario: String, fecha: Date) : Int = {
-      var numRows = 0
-      DB.withConnection{
-         implicit c =>
-            numRows = SQL("delete from task where usuario = {usuario} and fechaFin < {fecha}").on("usuario" -> usuario,"fecha" -> fecha).executeUpdate()
-      }
-      return numRows
+   def deleteDate(usuario: String, fecha: Date) : Int = DB.withConnection{
+      implicit c => SQL("delete from task where usuario = {usuario} and fechaFin < {fecha}")
+         .on("usuario" -> usuario,"fecha" -> fecha).executeUpdate()
+   }
+
+   def deleteCategoria(usuario: String, categoria: String) : Int = DB.withConnection{
+      implicit c => SQL("delete from task where usuario = {usuario} and categoria = {categoria}")
+         .on("usuario" -> usuario, "categoria" -> categoria).executeUpdate()
    }
 }

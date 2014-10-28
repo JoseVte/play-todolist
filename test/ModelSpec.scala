@@ -334,9 +334,13 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
-
                 val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
-                idTest must be_>(0L)
+
+                val ok = Task.deleteCategoria(nombreUsuario,nombreCategoria)
+                ok  must equalTo(1)
+
+                val error = Task.deleteCategoria(nombreUsuario,nombreCategoria)
+                error must equalTo(0)
             }
         }
     }

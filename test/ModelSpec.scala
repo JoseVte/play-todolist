@@ -305,6 +305,12 @@ class ModelSpec extends Specification {
 
                 val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
                 idTest must be_>(0L)
+
+                // Probamos a crear una tarea sin categoria null
+                Task.create(label,nombreUsuario,null,null) must be_>(0L)
+
+                // Probamos a crear una tarea sin categoria null
+                Task.create(label,nombreUsuario,nombreNuevoCategoria,null) must throwA[JdbcSQLException]
             }
         }
 

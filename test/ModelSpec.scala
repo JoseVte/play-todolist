@@ -277,8 +277,11 @@ class ModelSpec extends Specification {
                 User.crearUser(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
-                val num = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
-                num must equalTo(1)
+                val ok = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
+                ok must beTrue
+
+                val error = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
+                error must beFalse
             }
         }
 

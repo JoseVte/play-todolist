@@ -26,9 +26,10 @@ object Categoria {
          .on("usuario" -> usuario,"nombreCategoria" -> nombreCategoria).executeUpdate()
    }
 
-   def update(usuario: String, nombreAnt: String, nombreNuevo: String) = {
-      1
-   }
+   def update(usuario: String, nombreAnt: String, nombreNuevo: String): Boolean = (1 == DB.withConnection {
+      implicit c => SQL("UPDATE categorias c SET c.nombreCategoria = {nombreNuevo} WHERE c.nombreCategoria = {nombreAnt} AND c.usuario = {usuario}")
+         .on("usuario" -> usuario,"nombreAnt" -> nombreAnt,"nombreNuevo" -> nombreNuevo).executeUpdate()
+   })
 
    def delete(usuario: String, nombre: String) = {
       1

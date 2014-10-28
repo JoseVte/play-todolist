@@ -291,21 +291,41 @@ class ModelSpec extends Specification {
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val ok = Categoria.delete(nombreUsuario,nombreCategoria)
-                ok must equalTo(1)
+                ok must beTrue
+
+                val error = Categoria.delete(nombreUsuario,nombreCategoria)
+                error must beFalse
             }
         }
-        /* no compilaria
+        
         "añadir tareas a categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                idTest must be_>(0L)
+            }
         }
 
         "mostrar todas las tareas de una categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                idTest must be_>(0L)
+            }
         }
 
         "quitar tareas de una categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                idTest must be_>(0L)
+            }
         }
-        */
     }
 }

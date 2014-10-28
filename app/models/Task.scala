@@ -33,6 +33,20 @@ object Task {
          .on("id" -> id, "usuario" -> usuario).as(task.singleOpt)
    }
 
+   def create(label: String, usuario: String, categoria: String,fechaFin: Option[Date]) : Long = {
+      var idNuevo: Long = 0
+      var aux: Date = new Date
+      if(fechaFin!=null && !fechaFin.isEmpty){
+         aux = fechaFin.get
+      }
+      DB.withConnection{
+         implicit c => 
+            idNuevo = SQL("insert into task(label,usuario,fechaFin, categoria) values ({label},{usuario},{fechaFin},{categoria})")
+            .on("label" -> label, "usuario" -> usuario, "categoria" -> categoria, "fechaFin" -> aux).executeInsert().get
+      }
+      return idNuevo
+   }
+
    def create(label: String, usuario: String,fechaFin: Option[Date]) : Long = {
       var idNuevo: Long = 0
       var aux: Date = new Date

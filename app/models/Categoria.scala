@@ -31,7 +31,8 @@ object Categoria {
          .on("usuario" -> usuario,"nombreAnt" -> nombreAnt,"nombreNuevo" -> nombreNuevo).executeUpdate()
    })
 
-   def delete(usuario: String, nombre: String) = {
-      1
-   }
+   def delete(usuario: String, nombre: String): Boolean = (1 == DB.withConnection {
+      implicit c => SQL("DELETE FROM categorias WHERE usuario = {usuario} AND nombreCategoria = {nombre}")
+         .on("usuario" -> usuario,"nombre" -> nombre).executeUpdate()
+   })
 }

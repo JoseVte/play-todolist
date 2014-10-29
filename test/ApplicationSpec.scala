@@ -391,5 +391,25 @@ class ApplicationSpec extends Specification {
                 contentAsString(error2) must contain("404")
             }
         }
+
+        "añadir una tarea a una categoria" in {
+            running(FakeApplication()) {
+                User.crearUser(usuarioTest)
+                Categoria.create(usuarioTest,categoriaTest)
+
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks")
+                    .withFormUrlEncodedBody(("label","Test"),("categoria",categoriaTest)))
+
+                status(form) must equalTo(CREATED)
+                contentType(form) must beSome.which(_ == "application/json")
+                contentAsString(form) must contain ("\"label\":\"Test\"")
+
+                // El formulario esta mal introducido
+                val Some(error) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody())
+                status(error) must equalTo(BAD_REQUEST)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("400")
+            }
+        }
     }
 }

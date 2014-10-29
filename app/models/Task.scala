@@ -8,14 +8,15 @@ import play.api.Play.current
 
 import java.util.Date
 
-case class Task(id: Long, label: String, fechaFin: Option[Date])
+case class Task(id: Long, label: String, fechaFin: Option[Date], categoria: Option[String])
 
 object Task {
    val task = {
       get[Long]("id") ~
       get[String]("label") ~
-      get[Option[Date]]("fechaFin") map{
-         case id~label~fechaFin => Task(id,label,fechaFin)
+      get[Option[Date]]("fechaFin") ~
+      get[Option[String]]("categoria") map{
+         case id~label~fechaFin~categoria => Task(id,label,fechaFin,categoria)
       }
    }
 

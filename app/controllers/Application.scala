@@ -26,7 +26,8 @@ object Application extends Controller {
       mapping(
          "id" -> ignored(0L),
          "label" -> nonEmptyText,
-         "fechaFin" -> optional(date(formatoParse))
+         "fechaFin" -> optional(date(formatoParse)),
+         "categoria" -> optional(text)
       )(Task.apply)(Task.unapply)
    )
 
@@ -45,7 +46,8 @@ object Application extends Controller {
       def writes(task: Task) = Json.obj(
          "id" -> task.id,
          "label" -> task.label,
-         "fechaFin" -> task.fechaFin)
+         "fechaFin" -> task.fechaFin,
+         "categoria" -> task.categoria)
    }
 
    implicit val categoriaWrites = new Writes[Categoria] {
@@ -112,7 +114,7 @@ object Application extends Controller {
          task => {
             if(User.comprobarUsuario(usuario)){
                val id = Task.create(task.label,usuario,task.fechaFin)
-               val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin))))
+               val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin,task.categoria))))
                Created(json)
             } else {
                NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")

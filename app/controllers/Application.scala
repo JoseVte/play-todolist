@@ -169,4 +169,8 @@ object Application extends Controller {
          }
       )
    }
+
+   def updateCategoria(usuario: String) = Action {
+      Ok("correctamente")
+   }
 }

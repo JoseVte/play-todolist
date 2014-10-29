@@ -28,7 +28,8 @@ GET      /categorias                                controllers.Application.cate
 GET      /:usuario/categorias                       controllers.Application.categorias(usuario: String)
 POST     /categorias                                controllers.Application.newCategoria(usuario: String = "anonimo")
 POST     /:usuario/categorias                       controllers.Application.newCategoria(usuario: String)
-
+POST     /categorias/update                         controllers.Application.updateCategoria(usuario: String = "anonimo")
+POST     /:usuario/categorias/update                controllers.Application.updateCategoria(usuario: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                             controllers.Assets.at(path="/public", file)

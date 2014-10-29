@@ -21,6 +21,7 @@ class ApplicationSpec extends Specification {
     val fechaIncorrecta="24-10"
     val categoriaTest="CategoriaTest"
     val categoriaNuevaTest="CategoriaNuevaTest"
+    val categoriaIncorrectaTest="CategoriaIncorrectaTest"
 
     "Controlador de la APP - Feature 1" should {
         "devolver 404 en una ruta incorrecta" in {  
@@ -475,7 +476,7 @@ class ApplicationSpec extends Specification {
                 val idTest = Task.create("Test",usuarioTest,categoriaTest,null)
 
                 val Some(update) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
-                    .withFormUrlEncodedBody(("id",""+idTest),("categoriaAnt",categoriaTest),("categoriaNueva",categoriaNuevaTest)))
+                    .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaNuevaTest)))
 
                 status(update) must equalTo(OK)
                 contentType(update) must beSome.which(_ == "text/plain")
@@ -489,33 +490,26 @@ class ApplicationSpec extends Specification {
 
                 // El usuario no existe
                 val Some(error2) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/categorias/update/tasks")
-                    .withFormUrlEncodedBody(("id",""+idTest),("categoriaAnt",categoriaTest),("categoriaNueva",categoriaNuevaTest)))
+                    .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaNuevaTest)))
                 status(error2) must equalTo(NOT_FOUND)
                 contentType(error2) must beSome.which(_ == "text/html")
                 contentAsString(error2) must contain("404")
 
-                // No pertenece a esa categoria
-                val Some(error3) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
-                    .withFormUrlEncodedBody(("id",""+idTest),("categoriaAnt",categoriaTest),("categoriaNueva",categoriaNuevaTest)))
+                // No existe el id de la tarea
+                val Some(error3) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
+                    .withFormUrlEncodedBody(("id","9999"),("categoriaNueva",categoriaTest)))
                 status(error3) must equalTo(NOT_FOUND)
                 contentType(error3) must beSome.which(_ == "text/html")
                 contentAsString(error3) must contain("404")
 
-                // No existe el id de la tarea
-                val Some(error4) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
-                    .withFormUrlEncodedBody(("id","9999"),("categoriaAnt",categoriaNuevaTest),("categoriaNueva",categoriaTest)))
-                status(error4) must equalTo(BAD_REQUEST)
-                contentType(error4) must beSome.which(_ == "text/html")
-                contentAsString(error4) must contain("400")
-
                 // La categoria nueva no pertenece a ese usuario
                 User.crearUser(usuarioIncorrecto)
-                Categoria.create(usuarioIncorrecto,categoriaTest)
-                val Some(error5) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
-                    .withFormUrlEncodedBody(("id",""+idTest),("categoriaAnt",categoriaNuevaTest),("categoriaNueva",categoriaTest)))
-                status(error5) must equalTo(BAD_REQUEST)
+                Categoria.create(usuarioIncorrecto,categoriaIncorrectaTest)
+                val Some(error5) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
+                    .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaIncorrectaTest)))
+                status(error5) must equalTo(NOT_FOUND)
                 contentType(error5) must beSome.which(_ == "text/html")
-                contentAsString(error5) must contain("400")
+                contentAsString(error5) must contain("404")
             }
         }
     }

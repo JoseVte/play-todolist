@@ -42,6 +42,13 @@ object Application extends Controller {
       )
    )
 
+   val taskUpdateForm = Form(
+      tuple(
+         "id" -> number,
+         "categoriaNueva" -> text
+      )
+   )
+
    implicit val taskWrites = new Writes[Task] {
       def writes(task: Task) = Json.obj(
          "id" -> task.id,
@@ -125,8 +132,12 @@ object Application extends Controller {
          errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
          task => {
             if(User.comprobarUsuario(usuario)){
-               val id = Task.create(task.label,usuario,task.fechaFin)
-               val json = Json.toJson(Map(usuario -> Json.toJson(new Task(id,task.label,task.fechaFin,task.categoria))))
+               var auxCategoria: String = null
+               if(task.categoria!=None && !task.categoria.isEmpty){
+                  auxCategoria=task.categoria.get
+               }
+               val id = Task.create(task.label,usuario,auxCategoria,task.fechaFin)
+               val json = Json.toJson(Map(usuario -> Json.toJson(Task.read(usuario,id))))
                Created(json)
             } else {
                NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
@@ -135,8 +146,25 @@ object Application extends Controller {
       )
    }
 
-   def updateCategoriaTask(usuario: String) = Action {
-      Ok
+   def updateCategoriaTask(usuario: String) = Action { implicit request =>
+      taskUpdateForm.bindFromRequest.fold(
+         errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
+         update => {
+            if(User.comprobarUsuario(usuario)){
+               if(Categoria.comprobarCategoria(usuario,update._2)){
+                  if(Task.modificarCategoria(usuario,update._2,update._1)){
+                     Ok("La tarea "+update._1+" del usuario "+usuario+" se ha trasladado a la categoria "+update._2+" correctamente")
+                  } else {
+                     NotFound(errores("Error 404: La tarea con el id "+update._1+" no existe para el usuario "+usuario)).as("text/html")
+                  }
+               } else {
+                  NotFound(errores("Error 404: La categoria "+update._2+" no existe para el usuario "+usuario)).as("text/html")
+               }
+            } else {
+               NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
+            }
+         }
+      )
    }
 
    def deleteTask(usuario: String, id: Long) = Action {
@@ -172,7 +200,7 @@ object Application extends Controller {
          if(Categoria.comprobarCategoria(usuario,categoria)){
             Ok("Todas las tareas de la categoria "+categoria+" han sido borradas. Total: "+Task.deleteCategoria(usuario,categoria))
          } else {
-            NotFound(errores("Error 404: La categoria "+categoria+" no existe")).as("text/html")
+            NotFound(errores("Error 404: La categoria "+categoria+" no existe para el usuario "+usuario)).as("text/html")
          }
       } else {
          NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")

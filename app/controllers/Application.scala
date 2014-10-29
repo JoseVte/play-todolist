@@ -197,4 +197,8 @@ object Application extends Controller {
          }
       )
    }
+
+   def deleteCategoria(usuario: String, categoria: String) = Action {
+      Ok("La categoria "+categoria+" se ha borrado correctamente")
+   }
 }

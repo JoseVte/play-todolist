@@ -30,6 +30,8 @@ POST     /categorias                                controllers.Application.newC
 POST     /:usuario/categorias                       controllers.Application.newCategoria(usuario: String)
 POST     /categorias/update                         controllers.Application.updateCategoria(usuario: String = "anonimo")
 POST     /:usuario/categorias/update                controllers.Application.updateCategoria(usuario: String)
+DELETE   /categorias/:categoria                     controllers.Application.deleteCategoria(usuario: String = "anonimo", categoria: String)
+DELETE   /:usuario/categorias/:categoria            controllers.Application.deleteCategoria(usuario: String, categoria: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                             controllers.Assets.at(path="/public", file)

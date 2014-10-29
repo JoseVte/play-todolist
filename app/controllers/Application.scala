@@ -75,6 +75,10 @@ object Application extends Controller {
       }
    }
 
+   def tasksPorCategoria(usuario: String, categoria: String) = Action{
+      Ok(Json.toJson(List(1)))
+   }
+
    def readTask(usuario: String, id: Long) = Action {
       if(User.comprobarUsuario(usuario)){
          Task.read(usuario,id) match {

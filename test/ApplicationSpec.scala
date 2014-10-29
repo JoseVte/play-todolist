@@ -411,5 +411,33 @@ class ApplicationSpec extends Specification {
                 contentAsString(error) must contain("400")
             }
         }
+
+        "mostrar tareas de una categoria" in {
+            running(FakeApplication()) {
+                User.crearUser(usuarioTest)
+                Categoria.create(usuarioTest,categoriaTest)
+                Task.create("Test",usuarioTest,categoriaTest,null)
+
+                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias/"+categoriaTest+"/tasks"))
+
+                status(pag) must equalTo(OK)
+                contentType(pag) must beSome.which(_ == "application/json")
+                contentAsString(pag) must contain("Test")
+
+                 //Comprobamos un usuario que no exista
+                val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest+"/tasks"))
+
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+
+                 //Comprobamos una categoria que no exista
+                val Some(error2) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias/"+categoriaNuevaTest+"/tasks"))
+
+                status(error2) must equalTo(NOT_FOUND)
+                contentType(error2) must beSome.which(_ == "text/html")
+                contentAsString(error2) must contain("404")
+            }
+        }
     }
 }

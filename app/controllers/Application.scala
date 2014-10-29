@@ -146,4 +146,8 @@ object Application extends Controller {
          NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
       }
    }
+
+   def newCategoria(usuario: String) = Action {
+      Ok(Json.toJson(usuario))
+   }
 }

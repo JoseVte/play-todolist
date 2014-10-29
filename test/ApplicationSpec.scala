@@ -17,6 +17,7 @@ class ApplicationSpec extends Specification {
     val usuarioIncorrecto="Error"
     val fecha="24-10-2014"
     val fechaIncorrecta="24-10"
+    val categoriaTest="CategoriaTest"
 
     "Controlador de la APP - Feature 1" should {
         "devolver 404 en una ruta incorrecta" in {  
@@ -265,13 +266,14 @@ class ApplicationSpec extends Specification {
     }
 
     "Controlador de la APP - Feature TDD" should {
-        "todas las categoria" in {
+        "todas las categorias de un usuario" in {
             running(FakeApplication()) {
-                val Some(pag) = route(FakeRequest(GET,"/PruebaCategoria/categorias"))
+                User.crearUser(usuarioTest)
+                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias"))
 
                 status(pag) must equalTo(OK)
                 contentType(pag) must beSome.which(_ == "application/json")
-                contentAsString(pag) must contain ("Categoria1")
+                contentAsString(pag) must contain (usuarioTest)
 
                 // Usuario incorrecto
                 val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/categorias"))
@@ -279,6 +281,32 @@ class ApplicationSpec extends Specification {
                 status(error) must equalTo(NOT_FOUND)
                 contentType(error) must beSome.which(_ == "text/html")
                 contentAsString(error) must contain("404")
+            }
+        }
+
+        "crear una categoria de un usuario" in {
+            running(FakeApplication()) {
+                User.crearUser(usuarioTest)
+                val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias")
+                    .withFormUrlEncodedBody(("nombreCategoria",categoriaTest)))
+
+                status (form) must equalTo(CREATED)
+                contentType(form) must beSome.which(_ == "application/json")
+                contentAsString(form) must contain (usuarioTest)
+                contentAsString(form) must contain (categoriaTest)
+
+                // El formulario esta mal introducido
+                val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias").withFormUrlEncodedBody())
+                status(error) must equalTo(BAD_REQUEST)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("400")
+
+                // El usuario no existe
+                val Some(error2) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/tasks")
+                    .withFormUrlEncodedBody(("nombreCategoria",categoriaTest)))
+                status(error2) must equalTo(NOT_FOUND)
+                contentType(error2) must beSome.which(_ == "text/html")
+                contentAsString(error2) must contain("404")
             }
         }
     }

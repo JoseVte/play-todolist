@@ -135,6 +135,10 @@ object Application extends Controller {
       )
    }
 
+   def updateCategoriaTask(usuario: String) = Action {
+      Ok
+   }
+
    def deleteTask(usuario: String, id: Long) = Action {
       if(User.comprobarUsuario(usuario)){
          val resultado : Int = Task.delete(usuario,id)

@@ -439,5 +439,32 @@ class ApplicationSpec extends Specification {
                 contentAsString(error2) must contain("404")
             }
         }
+
+        "quitar todas las tareas de una categoria" in {
+            running(FakeApplication()) {
+                User.crearUser(usuarioTest)
+                Categoria.create(usuarioTest,categoriaTest)
+                Task.create("Test",usuarioTest,categoriaTest,null)
+
+                val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaTest+"/tasks"))
+
+                status(delete) must equalTo(OK)
+                contentType(delete) must beSome.which(_ == "text/plain")
+                contentAsString(delete) must contain ("correctamente")
+                contentAsString(delete) must contain ("1")
+
+                // El usuario no existe
+                val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest+"/tasks"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+
+                // No existe la categoria a modificar
+                val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaNuevaTest+"/tasks"))
+                status(error2) must equalTo(NOT_FOUND)
+                contentType(error2) must beSome.which(_ == "text/html")
+                contentAsString(error2) must contain("404")
+            }
+        }
     }
 }

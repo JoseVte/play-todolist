@@ -36,6 +36,8 @@ DELETE   /:usuario/categorias/:categoria            controllers.Application.dele
 # Rutas para las tareas con categorias
 GET      /categorias/:categoria/tasks               controllers.Application.tasksPorCategoria(usuario: String = "anonimo",categoria: String)
 GET      /:usuario/categorias/:categoria/tasks      controllers.Application.tasksPorCategoria(usuario: String,categoria: String)
+DELETE   /categorias/:categoria/tasks      controllers.Application.deleteTaskCategoria(usuario: String = "anonimo", categoria: String)
+DELETE   /:usuario/categorias/:categoria/tasks      controllers.Application.deleteTaskCategoria(usuario: String, categoria: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                             controllers.Assets.at(path="/public", file)

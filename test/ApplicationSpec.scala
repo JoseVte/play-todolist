@@ -513,7 +513,7 @@ class ApplicationSpec extends Specification {
             }
         }
 
-         "modificar la categoria de una tarea" in {
+        "borrar la categoria de una tarea" in {
             running(FakeApplication()) {
                 User.crearUser(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)

@@ -450,8 +450,8 @@ class ApplicationSpec extends Specification {
 
                 status(delete) must equalTo(OK)
                 contentType(delete) must beSome.which(_ == "text/plain")
-                contentAsString(delete) must contain ("correctamente")
-                contentAsString(delete) must contain ("1")
+                contentAsString(delete) must contain (categoriaTest)
+                contentAsString(delete) must contain ("Total: 1")
 
                 // El usuario no existe
                 val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest+"/tasks"))

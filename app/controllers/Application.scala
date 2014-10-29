@@ -164,7 +164,15 @@ object Application extends Controller {
    }
 
    def deleteTaskCategoria(usuario: String, categoria: String) = Action {
-      Ok
+      if(User.comprobarUsuario(usuario)){
+         if(Categoria.comprobarCategoria(usuario,categoria)){
+            Ok("Todas las tareas de la categoria "+categoria+" han sido borradas. Total: "+Task.deleteCategoria(usuario,categoria))
+         } else {
+            NotFound(errores("Error 404: La categoria "+categoria+" no existe")).as("text/html")
+         }
+      } else {
+         NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
+      }
    }
 
    def categorias(usuario: String) = Action {

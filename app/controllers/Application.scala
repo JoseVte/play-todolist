@@ -34,6 +34,13 @@ object Application extends Controller {
       "categoria" -> nonEmptyText
    )
 
+   val categoriaUpdateForm = Form(
+      tuple(
+         "categoriaAnt" -> nonEmptyText,
+         "categoriaNueva" -> nonEmptyText
+      )
+   )
+
    implicit val taskWrites = new Writes[Task] {
       def writes(task: Task) = Json.obj(
          "id" -> task.id,
@@ -170,7 +177,24 @@ object Application extends Controller {
       )
    }
 
-   def updateCategoria(usuario: String) = Action {
-      Ok("correctamente")
+   def updateCategoria(usuario: String) = Action { implicit request =>
+      categoriaUpdateForm.bindFromRequest.fold(
+         errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
+         form => {
+            if(User.comprobarUsuario(usuario)){
+               try{
+                  if(Categoria.update(usuario,form._1,form._2)){
+                     Ok("La categoria "+form._1+" se ha modificado correctamente a "+form._2)
+                  } else {
+                     NotFound(errores("Error 404: La categoria "+form._1+" no se ha podido modificar porque no se encuentra")).as("text/html")
+                  }
+               } catch {
+                  case _ : Throwable => BadRequest(errores("Error 400: La categoria "+form._1+" no se ha podido modificar porque el nuevo nombre ya existe")).as("text/html")
+               }
+            } else {
+               NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
+            }
+         }
+      )
    }
 }

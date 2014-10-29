@@ -354,6 +354,15 @@ class ApplicationSpec extends Specification {
                 status(error3) must equalTo(NOT_FOUND)
                 contentType(error3) must beSome.which(_ == "text/html")
                 contentAsString(error3) must contain("404")
+
+                // Ya existe el nombre nuevo categoria a modificar
+                Categoria.create(usuarioTest,categoriaTest)
+                val Some(error4) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
+                    .withFormUrlEncodedBody(("categoriaAnt",categoriaNuevaTest),("categoriaNueva",categoriaTest)))
+
+                status(error4) must equalTo(BAD_REQUEST)
+                contentType(error4) must beSome.which(_ == "text/html")
+                contentAsString(error4) must contain("400")
             }
         }
     }

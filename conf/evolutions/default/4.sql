@@ -9,7 +9,7 @@ CREATE TABLE categorias(
 
 
 ALTER TABLE task ADD categoria varchar(255);
-ALTER TABLE task ADD CONSTRAINT categoriaDeLaTarea FOREIGN KEY (categoria) REFERENCES categorias (nombreCategoria);
+ALTER TABLE task ADD CONSTRAINT categoriaDeLaTarea FOREIGN KEY (categoria) REFERENCES categorias (nombreCategoria) ON DELETE CASCADE ON UPDATE CASCADE;
 
 INSERT INTO usuarios (nombre) VALUES ('PruebaCategoria');
 INSERT INTO categorias (usuario,nombreCategoria) VALUES ('PruebaCategoria','Categoria1');

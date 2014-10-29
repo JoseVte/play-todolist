@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat
 
 import models.Task
 import models.User
+import models.Categoria
 
 object Application extends Controller {
 
@@ -34,6 +35,11 @@ object Application extends Controller {
          "id" -> task.id,
          "label" -> task.label,
          "fechaFin" -> task.fechaFin)
+   }
+
+   implicit val categoriaWrites = new Writes[Categoria] {
+      def writes(categoria: Categoria) = Json.obj(
+         "nombreCategoria" -> categoria.nombreCategoria)
    }
 
    def errores(mensajeError: String) : String = {
@@ -133,6 +139,11 @@ object Application extends Controller {
    }
 
    def categorias(usuario: String) = Action {
-      Ok(Json.toJson("Categoria1"))
+      if(User.comprobarUsuario(usuario)){
+         val json = Json.toJson(Map(usuario -> Json.toJson(Categoria.all(usuario))))
+         Ok(json)
+      } else {
+         NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
+      }
    }
 }

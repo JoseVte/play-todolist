@@ -272,6 +272,13 @@ class ApplicationSpec extends Specification {
                 status(pag) must equalTo(OK)
                 contentType(pag) must beSome.which(_ == "application/json")
                 contentAsString(pag) must contain ("Categoria1")
+
+                // Usuario incorrecto
+                val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/categorias"))
+
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
             }
         }
     }

@@ -30,6 +30,10 @@ object Application extends Controller {
       )(Task.apply)(Task.unapply)
    )
 
+   val categoriaForm = Form(
+      "categoria" -> nonEmptyText
+   )
+
    implicit val taskWrites = new Writes[Task] {
       def writes(task: Task) = Json.obj(
          "id" -> task.id,
@@ -147,7 +151,22 @@ object Application extends Controller {
       }
    }
 
-   def newCategoria(usuario: String) = Action {
-      Ok(Json.toJson(usuario))
+   def newCategoria(usuario: String) = Action { implicit request =>
+      categoriaForm.bindFromRequest.fold(
+         errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
+         categoria => {
+            if(User.comprobarUsuario(usuario)){
+               try{
+                  Categoria.create(usuario,categoria)
+                  val json = Json.toJson(Map(usuario -> Json.toJson(new Categoria(usuario,categoria))))
+                  Created(json)
+               } catch {
+                  case _ : Throwable => BadRequest(errores("Error 400: La categoria "+categoria+" ya existe")).as("text/html")
+               }
+            } else {
+               NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
+            }
+         }
+      )
    }
 }

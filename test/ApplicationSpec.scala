@@ -288,7 +288,7 @@ class ApplicationSpec extends Specification {
             running(FakeApplication()) {
                 User.crearUser(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias")
-                    .withFormUrlEncodedBody(("nombreCategoria",categoriaTest)))
+                    .withFormUrlEncodedBody(("categoria",categoriaTest)))
 
                 status (form) must equalTo(CREATED)
                 contentType(form) must beSome.which(_ == "application/json")
@@ -302,11 +302,19 @@ class ApplicationSpec extends Specification {
                 contentAsString(error) must contain("400")
 
                 // El usuario no existe
-                val Some(error2) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/tasks")
-                    .withFormUrlEncodedBody(("nombreCategoria",categoriaTest)))
+                val Some(error2) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/categorias")
+                    .withFormUrlEncodedBody(("categoria",categoriaTest)))
                 status(error2) must equalTo(NOT_FOUND)
                 contentType(error2) must beSome.which(_ == "text/html")
                 contentAsString(error2) must contain("404")
+
+                // Repetir nombre de la categoria
+                val Some(error3) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias")
+                    .withFormUrlEncodedBody(("categoria",categoriaTest)))
+
+                status(error3) must equalTo(BAD_REQUEST)
+                contentType(error3) must beSome.which(_ == "text/html")
+                contentAsString(error3) must contain("400")
             }
         }
     }

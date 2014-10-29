@@ -23,5 +23,10 @@ POST     /:usuario/tasks                           controllers.Application.newTa
 DELETE   /:usuario/tasks/$id<[0-9]+>               controllers.Application.deleteTask(usuario: String, id: Long)
 DELETE   /:usuario/tasks/:fecha                    controllers.Application.deleteTaskDate(usuario: String, fecha: String)
 
+# Rutas para acceso a las categorias
+GET      /categorias                                controllers.Application.categorias(usuario: String = "anonimo")
+GET      /:usuario/categorias                       controllers.Application.categorias(usuario: String)
+
+
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                             controllers.Assets.at(path="/public", file)

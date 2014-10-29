@@ -138,7 +138,7 @@ class ApplicationSpec extends Specification {
                 User.crearUser(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
-                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/4"))
+                val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/5"))
 
                 status(pag) must equalTo(OK)
                 contentType(pag) must beSome.which(_ == "application/json")
@@ -158,11 +158,11 @@ class ApplicationSpec extends Specification {
                 User.crearUser(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
-                val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/4"))
+                val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/5"))
 
                 status(del) must equalTo(OK)
                 contentType(del) must beSome.which(_ == "text/plain")
-                contentAsString(del) must contain("4")
+                contentAsString(del) must contain("5")
 
                 // Volvemos a borrar la tarea y deberia dar error
                 val Some(error) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/1"))
@@ -260,6 +260,18 @@ class ApplicationSpec extends Specification {
                 contentType(error2) must beSome.which(_ == "text/html")
                 contentAsString(error2) must contain("400")
                 contentAsString(error2) must contain(fechaIncorrecta)
+            }
+        }
+    }
+
+    "Controlador de la APP - Feature TDD" should {
+        "todas las categoria" in {
+            running(FakeApplication()) {
+                val Some(pag) = route(FakeRequest(GET,"/PruebaCategoria/categorias"))
+
+                status(pag) must equalTo(OK)
+                contentType(pag) must beSome.which(_ == "application/json")
+                contentAsString(pag) must contain ("Categoria1")
             }
         }
     }

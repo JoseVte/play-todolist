@@ -207,6 +207,10 @@ object Application extends Controller {
       }
    }
 
+   def deleteCategoriaTask(usuario: String, id: Long) = Action {
+      Ok
+   }
+
    def categorias(usuario: String) = Action {
       if(User.comprobarUsuario(usuario)){
          val json = Json.toJson(Map(usuario -> Json.toJson(Categoria.all(usuario))))

@@ -512,5 +512,31 @@ class ApplicationSpec extends Specification {
                 contentAsString(error5) must contain("404")
             }
         }
+
+         "modificar la categoria de una tarea" in {
+            running(FakeApplication()) {
+                User.crearUser(usuarioTest)
+                Categoria.create(usuarioTest,categoriaTest)
+                val idTest = Task.create("Test",usuarioTest,categoriaTest,null)
+
+                val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/"+idTest+"/deleteCategoria"))
+
+                status(delete) must equalTo(OK)
+                contentType(delete) must beSome.which(_ == "text/plain")
+                contentAsString(delete) must contain (""+idTest)
+
+                // El usuario no existe
+                val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/tasks/"+idTest+"/deleteCategoria"))
+                status(error) must equalTo(NOT_FOUND)
+                contentType(error) must beSome.which(_ == "text/html")
+                contentAsString(error) must contain("404")
+
+                // No existe la tarea a modificar
+                val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/9999/deleteCategoria"))
+                status(error2) must equalTo(NOT_FOUND)
+                contentType(error2) must beSome.which(_ == "text/html")
+                contentAsString(error2) must contain("404")
+            }
+        }
     }
 }

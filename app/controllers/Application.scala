@@ -76,7 +76,15 @@ object Application extends Controller {
    }
 
    def tasksPorCategoria(usuario: String, categoria: String) = Action{
-      Ok(Json.toJson(List(1)))
+      if(User.comprobarUsuario(usuario)){
+         if(Categoria.comprobarCategoria(usuario,categoria)){
+            Ok(Json.toJson(Task.all(usuario,categoria)))
+         } else {
+            NotFound(errores("Error 404: La categoria "+categoria+" no existe")).as("text/html")
+         }
+      } else {
+         NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
+      }
    }
 
    def readTask(usuario: String, id: Long) = Action {

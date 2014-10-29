@@ -199,6 +199,14 @@ object Application extends Controller {
    }
 
    def deleteCategoria(usuario: String, categoria: String) = Action {
-      Ok("La categoria "+categoria+" se ha borrado correctamente")
+      if(User.comprobarUsuario(usuario)){
+         if(Categoria.delete(usuario,categoria)){
+            Ok("La categoria "+categoria+" se ha borrado correctamente")
+         } else {
+            NotFound(errores("Error 404: La categoria "+categoria+" no existe")).as("text/html")
+         }
+      } else {
+         NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
+      }
    }
 }

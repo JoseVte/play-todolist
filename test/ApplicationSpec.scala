@@ -379,13 +379,13 @@ class ApplicationSpec extends Specification {
                 contentAsString(delete) must contain ("correctamente")
 
                 // El usuario no existe
-                val Some(error) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest))
+                val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest))
                 status(error) must equalTo(NOT_FOUND)
                 contentType(error) must beSome.which(_ == "text/html")
                 contentAsString(error) must contain("404")
 
                 // No existe la categoria a modificar
-                val Some(error2) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/"+categoriaNuevaTest))
+                val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaNuevaTest))
                 status(error2) must equalTo(NOT_FOUND)
                 contentType(error2) must beSome.which(_ == "text/html")
                 contentAsString(error2) must contain("404")

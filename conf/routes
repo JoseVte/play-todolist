@@ -23,5 +23,25 @@ POST     /:usuario/tasks                           controllers.Application.newTa
 DELETE   /:usuario/tasks/$id<[0-9]+>               controllers.Application.deleteTask(usuario: String, id: Long)
 DELETE   /:usuario/tasks/:fecha                    controllers.Application.deleteTaskDate(usuario: String, fecha: String)
 
+# Rutas para acceso a las categorias
+GET      /categorias                                controllers.Application.categorias(usuario: String = "anonimo")
+GET      /:usuario/categorias                       controllers.Application.categorias(usuario: String)
+POST     /categorias                                controllers.Application.newCategoria(usuario: String = "anonimo")
+POST     /:usuario/categorias                       controllers.Application.newCategoria(usuario: String)
+POST     /categorias/update                         controllers.Application.updateCategoria(usuario: String = "anonimo")
+POST     /:usuario/categorias/update                controllers.Application.updateCategoria(usuario: String)
+DELETE   /categorias/:categoria                     controllers.Application.deleteCategoria(usuario: String = "anonimo", categoria: String)
+DELETE   /:usuario/categorias/:categoria            controllers.Application.deleteCategoria(usuario: String, categoria: String)
+
+# Rutas para las tareas con categorias
+GET      /categorias/:categoria/tasks               controllers.Application.tasksPorCategoria(usuario: String = "anonimo",categoria: String)
+GET      /:usuario/categorias/:categoria/tasks      controllers.Application.tasksPorCategoria(usuario: String,categoria: String)
+POST     /categorias/update/tasks                   controllers.Application.updateCategoriaTask(usuario: String = "anonimo")
+POST     /:usuario/categorias/update/tasks          controllers.Application.updateCategoriaTask(usuario: String)
+DELETE   /categorias/:categoria/tasks               controllers.Application.deleteTaskCategoria(usuario: String = "anonimo", categoria: String)
+DELETE   /:usuario/categorias/:categoria/tasks      controllers.Application.deleteTaskCategoria(usuario: String, categoria: String)
+DELETE   /tasks/$id<[0-9]+>/deleteCategoria         controllers.Application.deleteCategoriaTask(usuario: String = "anonimo", id: Long)
+DELETE   /:usuario/tasks/$id<[0-9]+>/deleteCategoria  controllers.Application.deleteCategoriaTask(usuario: String, id: Long)
+
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file                             controllers.Assets.at(path="/public", file)

@@ -8,7 +8,7 @@ CREATE TABLE usuarios(
 );
 
 ALTER TABLE task ADD usuario varchar(255) NOT NULL;
-ALTER TABLE task ADD CONSTRAINT usuarioDeLaTarea FOREIGN KEY (usuario) REFERENCES usuarios (nombre);
+ALTER TABLE task ADD CONSTRAINT usuarioDeLaTarea FOREIGN KEY (usuario) REFERENCES usuarios (nombre) ON DELETE CASCADE ON UPDATE CASCADE;
 
 INSERT INTO usuarios (nombre) VALUES ('anonimo');
 INSERT INTO usuarios (nombre) VALUES ('Prueba');

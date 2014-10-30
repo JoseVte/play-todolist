@@ -9,6 +9,7 @@ import org.h2.jdbc.JdbcSQLException
 
 import models.Task
 import models.User
+import models.Categoria
 
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -20,6 +21,8 @@ class ModelSpec extends Specification {
     val nombreNuevoUsuario = "Nuevo test"
     val fecha:Option[Date] = Some(new Date)
     val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    val nombreCategoria = "CategoriaTest"
+    val nombreNuevoCategoria = "NuevaCategoriaTest"
 
     "Modelo de Task" should {
         "crear tarea" in {  
@@ -239,6 +242,121 @@ class ModelSpec extends Specification {
                 lista(0).label must_== label
             }
         }
+    }
 
+    "Modelo de Categoria" should {
+        "crear categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+                cat must be_>(0)
+
+                // Probamos a crear una cateogria sin usuario null
+                Categoria.create(null,nombreCategoria) must throwA[JdbcSQLException]
+            }
+        }
+
+        "mostrar categorias" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+                val cats = Categoria.all(nombreUsuario)
+                cats must be have size(1)
+                cats(0).usuario must_== nombreUsuario
+                cats(0).nombreCategoria must_== nombreCategoria
+
+                // Probamos a listar una tarea sin usuario ""
+                Categoria.all("") must be empty
+            }
+        }
+
+        "modificar categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+                val ok = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
+                ok must beTrue
+
+                val error = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
+                error must beFalse
+            }
+        }
+
+        "borrar categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+                val ok = Categoria.delete(nombreUsuario,nombreCategoria)
+                ok must beTrue
+
+                val error = Categoria.delete(nombreUsuario,nombreCategoria)
+                error must beFalse
+            }
+        }
+        
+        "añadir tareas a categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                idTest must be_>(0L)
+
+                // Probamos a crear una tarea sin categoria null
+                Task.create(label,nombreUsuario,null,null) must be_>(0L)
+
+                // Probamos a crear una tarea sin categoria null
+                Task.create(label,nombreUsuario,nombreNuevoCategoria,null) must throwA[JdbcSQLException]
+            }
+        }
+
+        "mostrar todas las tareas de una categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+
+                val tareas = Task.all(nombreUsuario,nombreCategoria)
+                tareas must be have size(1)
+                tareas(0).id must_== idTest
+                tareas(0).label must_== label
+
+                // Probamos a listar una tarea sin usuario ""
+                Task.all(nombreUsuario,"") must be empty
+            }
+        }
+
+        "quitar tareas de una categoria" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+                User.crearUser(nombreUsuario)
+                val cat = Categoria.create(nombreUsuario,nombreCategoria)
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+
+                val ok = Task.deleteCategoria(nombreUsuario,nombreCategoria)
+                ok  must equalTo(1)
+
+                val error = Task.deleteCategoria(nombreUsuario,nombreCategoria)
+                error must equalTo(0)
+            }
+        }
+
+        "modificar la categoria de una tarea" in {
+            running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+                User.crearUser(nombreUsuario)
+                Categoria.create(nombreUsuario,nombreCategoria)
+                Categoria.create(nombreUsuario,nombreNuevoCategoria)
+                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+
+                val ok = Task.modificarCategoria(nombreUsuario,nombreNuevoCategoria,idTest)
+                ok must beTrue
+
+                val error = Task.modificarCategoria(nombreNuevoUsuario,nombreNuevoCategoria,idTest)
+                error must beFalse
+            }
+        }
     }
 }

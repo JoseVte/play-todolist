@@ -234,12 +234,12 @@ object Application extends Controller {
          errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
          categoria => {
             if(User.comprobarUsuario(usuario)){
-               try{
+               if(!Categoria.comprobarCategoria(usuario,categoria)){
                   Categoria.create(usuario,categoria)
                   val json = Json.toJson(Map(usuario -> Json.toJson(new Categoria(usuario,categoria))))
                   Created(json)
-               } catch {
-                  case _ : Throwable => BadRequest(errores("Error 400: La categoria "+categoria+" ya existe")).as("text/html")
+               } else {
+                  BadRequest(errores("Error 400: La categoria "+categoria+" ya existe")).as("text/html")
                }
             } else {
                NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")
@@ -253,14 +253,14 @@ object Application extends Controller {
          errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
          form => {
             if(User.comprobarUsuario(usuario)){
-               try{
+               if(!Categoria.comprobarCategoria(usuario,form._2)){
                   if(Categoria.update(usuario,form._1,form._2)){
                      Ok("La categoria "+form._1+" se ha modificado correctamente a "+form._2)
                   } else {
                      NotFound(errores("Error 404: La categoria "+form._1+" no se ha podido modificar porque no se encuentra")).as("text/html")
                   }
-               } catch {
-                  case _ : Throwable => BadRequest(errores("Error 400: La categoria "+form._1+" no se ha podido modificar porque el nuevo nombre ya existe")).as("text/html")
+               } else {
+                  BadRequest(errores("Error 400: La categoria "+form._1+" no se ha podido modificar porque el nuevo nombre ya existe")).as("text/html")
                }
             } else {
                NotFound(errores("Error 404: El usuario "+usuario+" no existe")).as("text/html")

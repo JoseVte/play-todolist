@@ -350,7 +350,7 @@ class ApplicationSpec extends Specification {
 
                 // No existe la categoria a modificar
                 val Some(error3) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
-                    .withFormUrlEncodedBody(("categoriaAnt",categoriaTest),("categoriaNueva",categoriaNuevaTest)))
+                    .withFormUrlEncodedBody(("categoriaAnt",categoriaTest),("categoriaNueva",categoriaTest)))
 
                 status(error3) must equalTo(NOT_FOUND)
                 contentType(error3) must beSome.which(_ == "text/html")

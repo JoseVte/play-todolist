@@ -132,11 +132,7 @@ object Application extends Controller {
          errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
          task => {
             if(User.comprobarUsuario(usuario)){
-               var auxCategoria: String = null
-               if(task.categoria!=None && !task.categoria.isEmpty){
-                  auxCategoria=task.categoria.get
-               }
-               val id = Task.create(task.label,usuario,auxCategoria,task.fechaFin)
+               val id = Task.create(task.label,usuario,task.fechaFin,task.categoria)
                val json = Json.toJson(Map(usuario -> Json.toJson(Task.read(usuario,id))))
                Created(json)
             } else {

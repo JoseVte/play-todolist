@@ -326,7 +326,7 @@ class ApplicationSpec extends Specification {
             running(FakeApplication()) {
                 User.crearUser(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
-                Task.create("Test",usuarioTest,categoriaTest,null)
+                Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
                 val Some(update) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
                     .withFormUrlEncodedBody(("categoriaAnt",categoriaTest),("categoriaNueva",categoriaNuevaTest)))
@@ -371,7 +371,7 @@ class ApplicationSpec extends Specification {
             running(FakeApplication()) {
                 User.crearUser(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
-                Task.create("Test",usuarioTest,categoriaTest,null)
+                Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
                 val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaTest))
 
@@ -417,7 +417,7 @@ class ApplicationSpec extends Specification {
             running(FakeApplication()) {
                 User.crearUser(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
-                Task.create("Test",usuarioTest,categoriaTest,null)
+                Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
                 val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias/"+categoriaTest+"/tasks"))
 
@@ -445,7 +445,7 @@ class ApplicationSpec extends Specification {
             running(FakeApplication()) {
                 User.crearUser(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
-                Task.create("Test",usuarioTest,categoriaTest,null)
+                Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
                 val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaTest+"/tasks"))
 
@@ -473,7 +473,7 @@ class ApplicationSpec extends Specification {
                 User.crearUser(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
                 Categoria.create(usuarioTest,categoriaNuevaTest)
-                val idTest = Task.create("Test",usuarioTest,categoriaTest,null)
+                val idTest = Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
                 val Some(update) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
                     .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaNuevaTest)))
@@ -517,7 +517,7 @@ class ApplicationSpec extends Specification {
             running(FakeApplication()) {
                 User.crearUser(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
-                val idTest = Task.create("Test",usuarioTest,categoriaTest,null)
+                val idTest = Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
                 val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/"+idTest+"/deleteCategoria"))
 

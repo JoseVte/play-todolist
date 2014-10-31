@@ -31,13 +31,13 @@ class ModelSpec extends Specification {
                 // Comprobamos que se haya creado correctamente
 
                 User.crearUser(nombreUsuario)
-                val idTest = Task.create(label,nombreUsuario,null)
+                val idTest = Task.create(label,nombreUsuario,None)
                 idTest must be_>(0L)
 
                 // Probamos a crear una tarea sin usuario null
-                Task.create(label,null,null) must throwA[JdbcSQLException]
+                Task.create(label,null) must throwA[JdbcSQLException]
                 // Probamos a crear una tarea sin usuario ""
-                Task.create(label,"",null) must throwA[JdbcSQLException]
+                Task.create(label,"") must throwA[JdbcSQLException]
             }
         }
 
@@ -49,7 +49,7 @@ class ModelSpec extends Specification {
                 // Comprobamos que la lista inicial esta vacia
                 Task.all(nombreUsuario) must be empty
 
-                val idTest = Task.create(label,nombreUsuario,null)
+                val idTest = Task.create(label,nombreUsuario)
 
                 // Comprobamos todas las tareas
                 val lista = Task.all(nombreUsuario)
@@ -66,7 +66,7 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos una tarea de prueba
                 User.crearUser(nombreUsuario)
-                val idTest = Task.create(label,nombreUsuario,null)
+                val idTest = Task.create(label,nombreUsuario)
 
                 // Comprobamos la tarea
                 val tarea = Task.read(nombreUsuario,idTest)
@@ -87,7 +87,7 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos una tarea de prueba
                 User.crearUser(nombreUsuario)
-                var idTest = Task.create(label,nombreUsuario,null)
+                var idTest = Task.create(label,nombreUsuario)
 
                 // Borramos la tarea creada
                 val ok = Task.delete(nombreUsuario,idTest)
@@ -98,9 +98,8 @@ class ModelSpec extends Specification {
                 Task.delete(nombreUsuario,idTest) must_== 0
                 
                 // Intentamos volver a borrar una tarea de un usuario que no existe
-                idTest = Task.create(label,nombreUsuario,null)
+                idTest = Task.create(label,nombreUsuario)
                 Task.delete(null,idTest) must_== 0
-                idTest = Task.create(label,nombreUsuario,null)
                 Task.delete("",idTest) must_== 0
 
                 // Intentamos volver a borrar una tarea con otro id
@@ -303,14 +302,14 @@ class ModelSpec extends Specification {
                 User.crearUser(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
-                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
                 idTest must be_>(0L)
 
                 // Probamos a crear una tarea sin categoria null
-                Task.create(label,nombreUsuario,null,null) must be_>(0L)
+                Task.create(label,nombreUsuario,None) must be_>(0L)
 
-                // Probamos a crear una tarea sin categoria null
-                Task.create(label,nombreUsuario,nombreNuevoCategoria,null) must throwA[JdbcSQLException]
+                // Probamos a crear una tarea con una categoria que no existe
+                Task.create(label,nombreUsuario,None,Some(nombreNuevoCategoria)) must throwA[JdbcSQLException]
             }
         }
 
@@ -318,7 +317,7 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
-                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
 
                 val tareas = Task.all(nombreUsuario,nombreCategoria)
                 tareas must be have size(1)
@@ -334,7 +333,7 @@ class ModelSpec extends Specification {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 User.crearUser(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
-                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
 
                 val ok = Task.deleteCategoria(nombreUsuario,nombreCategoria)
                 ok  must equalTo(1)
@@ -349,7 +348,7 @@ class ModelSpec extends Specification {
                 User.crearUser(nombreUsuario)
                 Categoria.create(nombreUsuario,nombreCategoria)
                 Categoria.create(nombreUsuario,nombreNuevoCategoria)
-                val idTest = Task.create(label,nombreUsuario,nombreCategoria,null)
+                val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
 
                 val ok = Task.modificarCategoria(nombreUsuario,nombreNuevoCategoria,idTest)
                 ok must beTrue

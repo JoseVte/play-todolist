@@ -45,10 +45,10 @@ object Task {
          .on("label" -> label, "usuario" -> usuario, "categoria" -> categoria, "fechaFin" -> fechaFin).executeInsert().get
    }
 
-   def modificarCategoria(usuario: String, nuevaCategoria: String, id: Long) : Boolean = (1 == DB.withConnection{
+   def updateCategoria(usuario: String, nuevaCategoria: String, id: Long): Boolean = 1 == DB.withConnection{
       implicit c => SQL("update task set categoria = {categoria} where usuario = {usuario} and id = {id}")
          .on("usuario" -> usuario, "categoria" -> nuevaCategoria, "id" -> id).executeUpdate()
-   })
+   }
 
    def delete(usuario: String, id: Long) : Int = DB.withConnection{
       implicit c => SQL("delete from task where id = {id} and usuario = {usuario}")

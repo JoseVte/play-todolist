@@ -102,7 +102,7 @@ class ApplicationSpec extends Specification {
         "todas las tareas de un usuario" in {
             running(FakeApplication()) {
                 // Se comprueba en otros test esta funcionalidad
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks"))
 
                 status(pag) must equalTo(OK)  
@@ -121,7 +121,7 @@ class ApplicationSpec extends Specification {
         "crear una tarea para un usuario" in {
             running(FakeApplication()) {
                 // Se comprueba en otros test esta funcionalidad
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
                 status(form) must equalTo(CREATED)
@@ -140,7 +140,7 @@ class ApplicationSpec extends Specification {
         "una tarea concreta para un usuario" in {
             running(FakeApplication()) {
                 // Se comprueba en otros test esta funcionalidad
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
                 val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/5"))
@@ -160,7 +160,7 @@ class ApplicationSpec extends Specification {
         "borrado de una tarea de un usuario" in {
             running(FakeApplication()) {
                 // Se comprueba en otros test esta funcionalidad
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
                 val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/5"))
@@ -182,7 +182,7 @@ class ApplicationSpec extends Specification {
         "crear una tarea con fecha" in {
             running(FakeApplication()) {
                 // Se comprueba en otros test esta funcionalidad
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
                     withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
 
@@ -207,7 +207,7 @@ class ApplicationSpec extends Specification {
         "borrado de tareas por fecha" in {
             running(FakeApplication()) {
                 // Se comprueba en otros test esta funcionalidad
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
                     withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
                 val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
@@ -239,7 +239,7 @@ class ApplicationSpec extends Specification {
 
         "mostrar tareas por fecha" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
                     withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
                 val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
@@ -272,7 +272,7 @@ class ApplicationSpec extends Specification {
     "Controlador de la APP - Feature TDD" should {
         "todas las categorias de un usuario" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias"))
 
                 status(pag) must equalTo(OK)
@@ -290,7 +290,7 @@ class ApplicationSpec extends Specification {
 
         "crear una categoria de un usuario" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias")
                     .withFormUrlEncodedBody(("categoria",categoriaTest)))
 
@@ -324,7 +324,7 @@ class ApplicationSpec extends Specification {
 
         "actualizar nombre de una categoria" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
                 Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
@@ -369,7 +369,7 @@ class ApplicationSpec extends Specification {
 
         "borrar una categoria" in{
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
                 Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
@@ -395,7 +395,7 @@ class ApplicationSpec extends Specification {
 
         "añadir una tarea a una categoria" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
 
                 val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks")
@@ -415,7 +415,7 @@ class ApplicationSpec extends Specification {
 
         "mostrar tareas de una categoria" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
                 Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
@@ -443,7 +443,7 @@ class ApplicationSpec extends Specification {
 
         "quitar todas las tareas de una categoria" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
                 Task.create("Test",usuarioTest,None,Some(categoriaTest))
 
@@ -470,7 +470,7 @@ class ApplicationSpec extends Specification {
 
         "modificar la categoria de una tarea" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
                 Categoria.create(usuarioTest,categoriaNuevaTest)
                 val idTest = Task.create("Test",usuarioTest,None,Some(categoriaTest))
@@ -503,7 +503,7 @@ class ApplicationSpec extends Specification {
                 contentAsString(error3) must contain("404")
 
                 // La categoria nueva no pertenece a ese usuario
-                User.crearUser(usuarioIncorrecto)
+                User.create(usuarioIncorrecto)
                 Categoria.create(usuarioIncorrecto,categoriaIncorrectaTest)
                 val Some(error5) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
                     .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaIncorrectaTest)))
@@ -515,7 +515,7 @@ class ApplicationSpec extends Specification {
 
         "borrar la categoria de una tarea" in {
             running(FakeApplication()) {
-                User.crearUser(usuarioTest)
+                User.create(usuarioTest)
                 Categoria.create(usuarioTest,categoriaTest)
                 val idTest = Task.create("Test",usuarioTest,None,Some(categoriaTest))
 

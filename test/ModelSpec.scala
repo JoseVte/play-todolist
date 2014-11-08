@@ -30,7 +30,7 @@ class ModelSpec extends Specification {
                 // LLamamos al modelo para crear una tarea
                 // Comprobamos que se haya creado correctamente
 
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val idTest = Task.create(label,nombreUsuario,None)
                 idTest must be_>(0L)
 
@@ -44,7 +44,7 @@ class ModelSpec extends Specification {
         "todas las tareas" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos una tarea de prueba
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
 
                 // Comprobamos que la lista inicial esta vacia
                 Task.all(nombreUsuario) must be empty
@@ -65,7 +65,7 @@ class ModelSpec extends Specification {
         "una tarea concreta" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos una tarea de prueba
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val idTest = Task.create(label,nombreUsuario)
 
                 // Comprobamos la tarea
@@ -86,7 +86,7 @@ class ModelSpec extends Specification {
         "borrado de una tarea" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos una tarea de prueba
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 var idTest = Task.create(label,nombreUsuario)
 
                 // Borramos la tarea creada
@@ -114,18 +114,18 @@ class ModelSpec extends Specification {
                 // LLamamos al modelo para crear un usuario
                 // Comprobamos que se haya creado correctamente
 
-                val idTest = User.crearUser(nombreUsuario)
+                val idTest = User.create(nombreUsuario)
                 idTest must beSome
 
                 // Probamos a volver a crearlo para comprobar que no se puede crear
-                User.crearUser(nombreUsuario) must throwA[JdbcSQLException]
+                User.create(nombreUsuario) must throwA[JdbcSQLException]
             }
         }
 
         "extraer usuarios" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos el usuario
-                val idTest = User.crearUser(nombreUsuario)
+                val idTest = User.create(nombreUsuario)
                 idTest must beSome
 
                 // LLamamos al modelo para leer un usuario
@@ -145,7 +145,7 @@ class ModelSpec extends Specification {
         "todos los usuarios" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos el usuario
-                val idTest = User.crearUser(nombreUsuario)
+                val idTest = User.create(nombreUsuario)
                 idTest must beSome
 
                 // LLamamos al modelo para leer todos los usuarios
@@ -158,18 +158,18 @@ class ModelSpec extends Specification {
         "modificar usuarios" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 // Primero creamos el usuario
-                val idTest = User.crearUser(nombreUsuario)
+                val idTest = User.create(nombreUsuario)
                 idTest must beSome
 
                 // Llamamos al modelo para modificarlo
                 // Comprobamos el nuevo valor
 
-                val result = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+                val result = User.update(nombreUsuario,nombreNuevoUsuario)
                 result must beTrue
 
                 // Repetimos para comprobar que no lo encuentra
                 // y por lo tanto no puede modificarlo
-                val result2 = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+                val result2 = User.update(nombreUsuario,nombreNuevoUsuario)
                 result2 must beFalse
             }
         }
@@ -177,16 +177,16 @@ class ModelSpec extends Specification {
         "borrar usuarios" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
                 //Primero creamos un usuario
-                val idTest = User.crearUser(nombreUsuario)
+                val idTest = User.create(nombreUsuario)
                 idTest must beSome
 
                 //Probamos a borrarlo
 
-                val result = User.borrarUser(nombreUsuario)
+                val result = User.delete(nombreUsuario)
                 result must beTrue
 
                 //Repetimos y da error
-                val result2 = User.borrarUser(nombreUsuario)
+                val result2 = User.delete(nombreUsuario)
                 result2 must beFalse
             }
         }
@@ -198,7 +198,7 @@ class ModelSpec extends Specification {
                 // LLamamos al modelo para crear una tarea
                 // Comprobamos que se haya creado correctamente
 
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val idTest = Task.create(label,nombreUsuario,fecha)
                 idTest must be_>(0L)
                 val task = Task.read(nombreUsuario,idTest)
@@ -211,7 +211,7 @@ class ModelSpec extends Specification {
                 // LLamamos al modelo para crear una tarea
                 // Comprobamos que se haya creado correctamente
 
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val idTest = Task.create(label,nombreUsuario,fecha)
 
                 val result = Task.deleteDate(nombreUsuario,fecha.get)
@@ -228,7 +228,7 @@ class ModelSpec extends Specification {
                 // LLamamos al modelo para crear una tarea
                 // Comprobamos que se haya creado correctamente
 
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
 
                 Task.all(nombreUsuario,fecha.get) must be empty
 
@@ -246,7 +246,7 @@ class ModelSpec extends Specification {
     "Modelo de Categoria" should {
         "crear categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 cat must be_>(0)
@@ -258,7 +258,7 @@ class ModelSpec extends Specification {
 
         "mostrar categorias" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val cats = Categoria.all(nombreUsuario)
@@ -273,7 +273,7 @@ class ModelSpec extends Specification {
 
         "modificar categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val ok = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
@@ -286,7 +286,7 @@ class ModelSpec extends Specification {
 
         "borrar categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val ok = Categoria.delete(nombreUsuario,nombreCategoria)
@@ -299,7 +299,7 @@ class ModelSpec extends Specification {
         
         "añadir tareas a categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
 
                 val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
@@ -315,7 +315,7 @@ class ModelSpec extends Specification {
 
         "mostrar todas las tareas de una categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
                 val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
 
@@ -331,7 +331,7 @@ class ModelSpec extends Specification {
 
         "quitar tareas de una categoria" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 val cat = Categoria.create(nombreUsuario,nombreCategoria)
                 val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
 
@@ -345,15 +345,15 @@ class ModelSpec extends Specification {
 
         "modificar la categoria de una tarea" in {
             running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-                User.crearUser(nombreUsuario)
+                User.create(nombreUsuario)
                 Categoria.create(nombreUsuario,nombreCategoria)
                 Categoria.create(nombreUsuario,nombreNuevoCategoria)
                 val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
 
-                val ok = Task.modificarCategoria(nombreUsuario,nombreNuevoCategoria,idTest)
+                val ok = Task.updateCategoria(nombreUsuario,nombreNuevoCategoria,idTest)
                 ok must beTrue
 
-                val error = Task.modificarCategoria(nombreNuevoUsuario,nombreNuevoCategoria,idTest)
+                val error = Task.updateCategoria(nombreNuevoUsuario,nombreNuevoCategoria,idTest)
                 error must beFalse
             }
         }

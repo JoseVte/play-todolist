@@ -148,7 +148,7 @@ object Application extends Controller {
          update => {
             if(User.comprobarUsuario(usuario)){
                if(Categoria.comprobarCategoria(usuario,update._2)){
-                  if(Task.modificarCategoria(usuario,update._2,update._1)){
+                  if(Task.updateCategoria(usuario,update._2,update._1)){
                      Ok("La tarea "+update._1+" del usuario "+usuario+" se ha trasladado a la categoria "+update._2+" correctamente")
                   } else {
                      NotFound(errores("Error 404: La tarea con el id "+update._1+" no existe para el usuario "+usuario)).as("text/html")
@@ -206,7 +206,7 @@ object Application extends Controller {
    def deleteCategoriaTask(usuario: String, id: Long) = Action {
       if(User.comprobarUsuario(usuario)){
          if(None != Task.read(usuario,id)){
-            Task.modificarCategoria(usuario,null,id)
+            Task.updateCategoria(usuario,null,id)
             Ok("La tarea "+id+" se le ha borrado la categoria correctamente")
          } else {
             NotFound(errores("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)).as("text/html")

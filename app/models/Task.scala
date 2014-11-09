@@ -40,38 +40,15 @@ object Task {
          .on("id" -> id, "usuario" -> usuario).as(task.singleOpt)
    }
 
-   def create(label: String, usuario: String, categoria: String,fechaFin: Option[Date]) : Long = {
-      var idNuevo: Long = 0
-      var aux: Date = new Date
-      if(fechaFin!=null && !fechaFin.isEmpty){
-         aux = fechaFin.get
-      }
-      DB.withConnection{
-         implicit c => 
-            idNuevo = SQL("insert into task(label,usuario,fechaFin, categoria) values ({label},{usuario},{fechaFin},{categoria})")
-            .on("label" -> label, "usuario" -> usuario, "categoria" -> categoria, "fechaFin" -> aux).executeInsert().get
-      }
-      return idNuevo
+   def create(label: String, usuario: String, fechaFin: Option[Date] = None, categoria: Option[String] = None) : Long = DB.withConnection{
+      implicit c => SQL("insert into task(label,usuario,fechaFin, categoria) values ({label},{usuario},{fechaFin},{categoria})")
+         .on("label" -> label, "usuario" -> usuario, "categoria" -> categoria, "fechaFin" -> fechaFin).executeInsert().get
    }
 
-   def create(label: String, usuario: String,fechaFin: Option[Date]) : Long = {
-      var idNuevo: Long = 0
-      var aux: Date = new Date
-      if(fechaFin!=null && !fechaFin.isEmpty){
-         aux = fechaFin.get
-      }
-      DB.withConnection{
-         implicit c => 
-            idNuevo = SQL("insert into task(label,usuario,fechaFin) values ({label},{usuario},{fechaFin})")
-            .on("label" -> label, "usuario" -> usuario,"fechaFin" -> aux).executeInsert().get
-      }
-      return idNuevo
-   }
-
-   def modificarCategoria(usuario: String, nuevaCategoria: String, id: Long) : Boolean = (1 == DB.withConnection{
+   def updateCategoria(usuario: String, nuevaCategoria: String, id: Long): Boolean = 1 == DB.withConnection{
       implicit c => SQL("update task set categoria = {categoria} where usuario = {usuario} and id = {id}")
          .on("usuario" -> usuario, "categoria" -> nuevaCategoria, "id" -> id).executeUpdate()
-   })
+   }
 
    def delete(usuario: String, id: Long) : Int = DB.withConnection{
       implicit c => SQL("delete from task where id = {id} and usuario = {usuario}")

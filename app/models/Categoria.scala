@@ -16,6 +16,11 @@ object Categoria {
       }
    }
 
+   def comprobarCategoria(usuario: String, nombreCategoria: Option[String]): Boolean = {
+      if(nombreCategoria == None) true
+      else comprobarCategoria(usuario,nombreCategoria.get)
+   }
+
    def comprobarCategoria(usuario: String, nombreCategoria: String): Boolean = (None != DB.withConnection{
       implicit c => SQL("SELECT * FROM categorias WHERE usuario = {usuario} AND nombreCategoria = {nombre}")
          .on("usuario" -> usuario,"nombre" -> nombreCategoria).as(categoria.singleOpt)

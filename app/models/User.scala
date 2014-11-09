@@ -28,18 +28,18 @@ object User{
       implicit c => SQL("select * from usuarios where nombre = {nombre}").on("nombre" -> nombre).as(user.singleOpt)
    }
 
-   def crearUser(nombre: String): Option[Long] = DB.withConnection{
+   def create(nombre: String): Option[Long] = DB.withConnection{
       implicit c => SQL("insert into usuarios(nombre) values ({nombre})").on("nombre" -> nombre).executeInsert()
    }
 
-   def modificarUser(nombreAnt: String, nombreNuevo: String): Boolean = {
+   def update(nombreAnt: String, nombreNuevo: String): Boolean = {
       val result: Int = DB.withConnection{
          implicit c => SQL("update usuarios u set u.nombre={nombreNuevo} where u.nombre={nombreAnt}").on("nombreAnt" -> nombreAnt,"nombreNuevo" -> nombreNuevo).executeUpdate()
       }
       return result==1
    }
 
-   def borrarUser(nombre: String): Boolean = {
+   def delete(nombre: String): Boolean = {
       val result: Int = DB.withConnection{
          implicit c => SQL("delete from usuarios u where u.nombre={nombre}").on("nombre" -> nombre).executeUpdate()
       }

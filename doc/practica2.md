@@ -1,36 +1,36 @@
 # Informe técnico de la practica 2
 
-En este informe se van a describir todas las funcionalidades nuevas y los tests para las funcionalidades antiguas.
+En este informe se van a describir todas las funcionalidades nuevas y los test para las funcionalidades antiguas.
 [Aqui](/doc/practica1.md) se encuentra la documentación referentes a las funcionalidades antiguas.
 
 <!-- MarkdownTOC -->
 
 - [I. Funcionalidades principales](#i-funcionalidades-principales)
-   - [1. Crear categoria](#1-crear-categoria)
+   - [1. Crear categoría](#1-crear-categoría)
       - [1.1 Implementación](#11-implementación)
       - [1.2 Ejecución](#12-ejecución)
-   - [2. Mostrar todas las categorias](#2-mostrar-todas-las-categorias)
+   - [2. Mostrar todas las categorías](#2-mostrar-todas-las-categorías)
       - [2.1 Implementación](#21-implementación)
       - [2.2 Ejecución](#22-ejecución)
-   - [3. Modificar el nombre de la categoria](#3-modificar-el-nombre-de-la-categoria)
+   - [3. Modificar el nombre de la categoría](#3-modificar-el-nombre-de-la-categoría)
       - [3.1 Implementación](#31-implementación)
       - [3.2 Ejecución](#32-ejecución)
-   - [4. Borrar la categoria](#4-borrar-la-categoria)
+   - [4. Borrar la categoría](#4-borrar-la-categoría)
       - [4.1 Implementación](#41-implementación)
       - [4.2 Ejecución](#42-ejecución)
-   - [5. Añadir tareas a categoria](#5-añadir-tareas-a-categoria)
+   - [5. Añadir tareas a categoría](#5-añadir-tareas-a-categoría)
       - [5.1 Implementación](#51-implementación)
       - [5.2 Ejecución](#52-ejecución)
    - [6. Listado de tareas](#6-listado-de-tareas)
       - [6.1 Implementación](#61-implementación)
       - [6.2 Ejecución](#62-ejecución)
-   - [7. Quitar todas las tareas de una categoria](#7-quitar-todas-las-tareas-de-una-categoria)
+   - [7. Quitar todas las tareas de una categoría](#7-quitar-todas-las-tareas-de-una-categoría)
       - [7.1 Implementación](#71-implementación)
       - [7.2 Ejecución](#72-ejecución)
-   - [8. Modificar la categoria de una tarea](#8-modificar-la-categoria-de-una-tarea)
+   - [8. Modificar la categoría de una tarea](#8-modificar-la-categoría-de-una-tarea)
       - [8.1 Implementación](#81-implementación)
       - [8.2 Ejecución](#82-ejecución)
-   - [9. Borrar la categoria de una tarea](#9-borrar-la-categoria-de-una-tarea)
+   - [9. Borrar la categoría de una tarea](#9-borrar-la-categoría-de-una-tarea)
       - [9.1 Implementación](#91-implementación)
       - [9.2 Ejecución](#92-ejecución)
 - [II. Test añadidos](#ii-test-añadidos)
@@ -67,7 +67,28 @@ En este informe se van a describir todas las funcionalidades nuevas y los tests 
          - [3.2.1 Crear una tarea con fecha](#321-crear-una-tarea-con-fecha)
          - [3.2.2 Borrado de tareas por fecha](#322-borrado-de-tareas-por-fecha)
          - [3.2.3 Mostrar tareas por fecha](#323-mostrar-tareas-por-fecha)
+   - [4. Test Feature 4](#4-test-feature-4)
+      - [4.1 Test en el modelo](#41-test-en-el-modelo)
+         - [4.1.1 Crear una categoría](#411-crear-una-categoría)
+         - [4.1.2 Mostrar las categorías de un usuario](#412-mostrar-las-categorías-de-un-usuario)
+         - [4.1.3 Modificar el nombre de una categoría](#413-modificar-el-nombre-de-una-categoría)
+         - [4.1.4 Borrar una categoría](#414-borrar-una-categoría)
+         - [4.1.5 Añadir una tarea con categoría](#415-añadir-una-tarea-con-categoría)
+         - [4.1.6 Mostrar las tareas de una categoría](#416-mostrar-las-tareas-de-una-categoría)
+         - [4.1.7 Borrar tareas de una categoría](#417-borrar-tareas-de-una-categoría)
+         - [4.1.8 Modificar la categoría de una tarea](#418-modificar-la-categoría-de-una-tarea)
+      - [4.2 Test en el controlador](#42-test-en-el-controlador)
+         - [4.2.1 Todas las tareas de un usuario](#421-todas-las-tareas-de-un-usuario)
+         - [4.2.2 Crear una categoría](#422-crear-una-categoría)
+         - [4.2.3 Actualizar el nombre de una categoría](#423-actualizar-el-nombre-de-una-categoría)
+         - [4.2.4 Borrar una categoría](#424-borrar-una-categoría)
+         - [4.2.5 Crear una tarea con una categoría](#425-crear-una-tarea-con-una-categoría)
+         - [4.2.6 Mostrar todas las tareas de una categoría](#426-mostrar-todas-las-tareas-de-una-categoría)
+         - [4.2.7 Borrar todas las tareas de una categoría](#427-borrar-todas-las-tareas-de-una-categoría)
+         - [4.2.8 Modificar la categoría de una tarea](#428-modificar-la-categoría-de-una-tarea)
+         - [4.2.9 Borrar la categoría de una tarea](#429-borrar-la-categoría-de-una-tarea)
 - [III. Repositorios](#iii-repositorios)
+   - [GitHub](#github)
    - [Bitbucket](#bitbucket)
    - [Heroku](#heroku)
 
@@ -75,18 +96,18 @@ En este informe se van a describir todas las funcionalidades nuevas y los tests 
 
 ## I. Funcionalidades principales
 
-### 1. Crear categoria
+### 1. Crear categoría
 
 #### 1.1 Implementación
 
-* El método `create` de la clase `Categoria` permite crear una categoria nueva a partir de un `usuario` y un `nombre`:
+* El método `create` de la clase `Categoria` permite crear una categoría nueva a partir de un `usuario` y un `nombre`:
 ``` scala
 def create(usuario: String, nombreCategoria: String): Int = DB.withConnection {
    implicit c => SQL("INSERT INTO categorias (usuario,nombreCategoria) VALUES ({usuario},{nombreCategoria})")
       .on("usuario" -> usuario,"nombreCategoria" -> nombreCategoria).executeUpdate()
 }
 ```
-* En el controlador existe el método `newCategoria` que recibe el `usuario` y devuelve el **JSON** de la categoria creada. Se comprueba si el usuario existe o si la categoria ya existe:
+* En el controlador existe el método `newCategoria` que recibe el `usuario` y devuelve el **JSON** de la categoría creada. Se comprueba si el usuario existe o si la categoría ya existe:
 ``` scala
 def newCategoria(usuario: String) = Action { implicit request =>
    categoriaForm.bindFromRequest.fold(
@@ -130,23 +151,23 @@ POST /categorias
 ```
 Error 404: El usuario {usuario} no existe
 ```
-* Si la categoria ya existe devuelve un `ERROR 400`:
+* Si la categoría ya existe devuelve un `ERROR 400`:
 ```
 Error 400: La categoria {categoria} ya existe
 ```
 
-### 2. Mostrar todas las categorias
+### 2. Mostrar todas las categorías
 
 #### 2.1 Implementación
 
-* El método `all` de la clase `Categoria` permite acceder a todas las categorias del `usuario` y devolver un `Option[Task]`:
+* El método `all` de la clase `Categoria` permite acceder a todas las categorías del `usuario` y devolver un `Option[Task]`:
 ``` scala
 def all(usuario: String): List[Categoria] = DB.withConnection {
    implicit c => SQL("SELECT * FROM categorias WHERE usuario = {usuario}")
       .on("usuario" -> usuario).as(categoria *)
 }
 ```
-* En el controlador existe el método `categorias` que recibe el `usuario` y devuelve el **JSON** de con todas las categorias de ese usuario:
+* En el controlador existe el método `categorías` que recibe el `usuario` y devuelve el **JSON** de con todas las categorías de ese usuario:
 ``` scala
 def categorias(usuario: String) = Action {
    if(User.comprobarUsuario(usuario)){
@@ -186,7 +207,7 @@ GET /categorias
 Error 404: El usuario {usuario} no existe
 ```
 
-### 3. Modificar el nombre de la categoria
+### 3. Modificar el nombre de la categoría
 
 #### 3.1 Implementación
 
@@ -226,7 +247,7 @@ def updateCategoria(usuario: String) = Action { implicit request =>
 ```
 POST /{usuario}/categorias/update
 ```
-* También se permite borrar las tareas para el usuario anonimo, pero está en desuso:
+* También se permite borrar las tareas para el usuario anónimo, pero está en desuso:
 ```
 POST /categorias/update
 ```
@@ -234,17 +255,17 @@ POST /categorias/update
 ```
 Tarea {id} del usuario {usuario} borrada correctamente
 ```
-* Si no hay ninguna categoria que concuerde o el usuario no existe se devolverá el `ERROR 404`:
+* Si no hay ninguna categoría que concuerde o el usuario no existe se devolverá el `ERROR 404`:
 ```
 Error 404: La categoria {categoria} no se ha podido modificar porque no se encuentra
 Error 404: El usuario {usuario} no existe
 ```
-* Tambien puede fallar si ya existe la categoria:
+* Tambien puede fallar si ya existe la categoría:
 ```
 "Error 400: La categoria {categoria} no se ha podido modificar porque el nuevo nombre ya existe"
 ```
 
-### 4. Borrar la categoria
+### 4. Borrar la categoría
 
 #### 4.1 Implementación
 
@@ -276,7 +297,7 @@ def deleteCategoria(usuario: String, categoria: String) = Action {
 ```
 DELETE /{usuario}/categorias/{categoria}
 ```
-* También se permite borrar las tareas para el usuario anonimo, pero está en desuso:
+* También se permite borrar las tareas para el usuario anónimo, pero está en desuso:
 ```
 DELETE /categorias/{categoria}
 ```
@@ -284,30 +305,21 @@ DELETE /categorias/{categoria}
 ```
 Tarea {id} del usuario {usuario} borrada correctamente
 ```
-* Si no hay ninguna categoria que concuerde o el usuario no existe se devolverá el `ERROR 404`:
+* Si no hay ninguna categoría que concuerde o el usuario no existe se devolverá el `ERROR 404`:
 ```
 Error 404: La categoria {categoria} no existe
 Error 404: El usuario {usuario} no existe
 ```
 
-### 5. Añadir tareas a categoria
+### 5. Añadir tareas a categoría
 
 #### 5.1 Implementación
 
-* Para crear una `tarea` que este dentro de una `categoria` se utiliza el metodo `create` de la clase `Task`:
+* Para crear una `tarea` que este dentro de una `categoria` se utiliza el método `create` de la clase `Task`:
 ```
-def create(label: String, usuario: String, categoria: String,fechaFin: Option[Date]) : Long = {
-   var idNuevo: Long = 0
-   var aux: Date = new Date
-   if(fechaFin!=null && !fechaFin.isEmpty){
-      aux = fechaFin.get
-   }
-   DB.withConnection{
-      implicit c => 
-         idNuevo = SQL("insert into task(label,usuario,fechaFin, categoria) values ({label},{usuario},{fechaFin},{categoria})")
-         .on("label" -> label, "usuario" -> usuario, "categoria" -> categoria, "fechaFin" -> aux).executeInsert().get
-   }
-   return idNuevo
+def create(label: String, usuario: String, fechaFin: Option[Date] = None, categoria: Option[String] = None) : Long = DB.withConnection{
+   implicit c => SQL("insert into task(label,usuario,fechaFin, categoria) values ({label},{usuario},{fechaFin},{categoria})")
+      .on("label" -> label, "usuario" -> usuario, "categoria" -> categoria, "fechaFin" -> fechaFin).executeInsert().get
 }
 ```
 * El método `newTask` recibe un `usuario` por parámetro y una `descripción` de una tarea, una `categoria` y la `fecha de finalización` por un formulario `POST`. Devuelve un código `201` con un **JSON** con los datos del nuevo objeto creado:
@@ -317,11 +329,7 @@ def newTask(usuario: String) = Action { implicit request =>
       errors => BadRequest(errores("Error 400: El formulario POST esta mal definido o faltan campos")).as("text/html"),
       task => {
          if(User.comprobarUsuario(usuario)){
-            var auxCategoria: String = null
-            if(task.categoria!=None && !task.categoria.isEmpty){
-               auxCategoria=task.categoria.get
-            }
-            val id = Task.create(task.label,usuario,auxCategoria,task.fechaFin)
+            val id = Task.create(task.label,usuario,task.fechaFin,task.categoria)
             val json = Json.toJson(Map(usuario -> Json.toJson(Task.read(usuario,id))))
             Created(json)
          } else {
@@ -361,7 +369,7 @@ Error 404: El usuario {usuario} no existe
 ### 6. Listado de tareas
 
 #### 6.1 Implementación
-* Para el acceso a la base de datos se utiliza un método de la clase `Task` que permite crear una lista de tareas a partir de un usuario y una categoria:
+* Para el acceso a la base de datos se utiliza un método de la clase `Task` que permite crear una lista de tareas a partir de un usuario y una categoría:
 ``` scala
 def all(usuario: String, categoria: String): List[Task] = DB.withConnection {
    implicit c => SQL("select * from task where usuario = {usuario} and categoria = {categoria}")
@@ -417,23 +425,23 @@ GET /categorias/{categoria}/tasks
    {usuario}: []
 }
 ```
-* Si no hay ninguna categoria que concuerde o el usuario no existe se devolverá el `ERROR 404`:
+* Si no hay ninguna categoría que concuerde o el usuario no existe se devolverá el `ERROR 404`:
 ```
 Error 404: La categoria {categoria} no existe
 Error 404: El usuario {usuario} no existe
 ```
 
-### 7. Quitar todas las tareas de una categoria
+### 7. Quitar todas las tareas de una categoría
 
 #### 7.1 Implementación
-* Para borrar las tareas se utiliza el método `deleteCategoria` de la clase `Task`, que devuelva el número de tareas que se han borrado hasta en la categoria:
+* Para borrar las tareas se utiliza el método `deleteCategoria` de la clase `Task`, que devuelva el número de tareas que se han borrado hasta en la categoría:
 ``` scala
 def deleteCategoria(usuario: String, categoria: String) : Int = DB.withConnection{
    implicit c => SQL("delete from task where usuario = {usuario} and categoria = {categoria}")
       .on("usuario" -> usuario, "categoria" -> categoria).executeUpdate()
 }
 ```
-* El método `deleteTaskCategoria` llama al método anterior para realizar el borrado. Antes se comprueba que la categoria exista. Aparte utiliza el número de filas modificado para enviar un mensaje al usuario:
+* El método `deleteTaskCategoria` llama al método anterior para realizar el borrado. Antes se comprueba que la categoría exista. Aparte utiliza el número de filas modificado para enviar un mensaje al usuario:
 ``` scala
 def deleteTaskCategoria(usuario: String, categoria: String) = Action {
    if(User.comprobarUsuario(usuario)){
@@ -461,23 +469,23 @@ DELETE /categorias/{categoria}/tasks
 ```
 Todas las tareas de la categoria {categoria} han sido borradas. Total: {num rows}
 ```
-* Si no hay ninguna categoria que concuerde o el usuario no existe se devolverá el `ERROR 404`:
+* Si no hay ninguna categoría que concuerde o el usuario no existe se devolverá el `ERROR 404`:
 ```
 Error 404: La categoria {categoria} no existe
 Error 404: El usuario {usuario} no existe
 ```
 
-### 8. Modificar la categoria de una tarea
+### 8. Modificar la categoría de una tarea
 
 #### 8.1 Implementación
-* Para modificar la cateogria se utiliza el método `modificarCategoria` de la clase `Task`, que devuelva si se ha podido modificar o no la categoria:
+* Para modificar la catenaria se utiliza el método `updateCategoria` de la clase `Task`, que devuelva si se ha podido modificar o no la categoria:
 ``` scala
-def modificarCategoria(usuario: String, nuevaCategoria: String, id: Long) : Boolean = (1 == DB.withConnection{
+def updateCategoria(usuario: String, nuevaCategoria: String, id: Long) : Boolean = (1 == DB.withConnection{
    implicit c => SQL("update task set categoria = {categoria} where usuario = {usuario} and id = {id}")
       .on("usuario" -> usuario, "categoria" -> nuevaCategoria, "id" -> id).executeUpdate()
 })
 ```
-* El método `updateCategoriaTask` llama al método anterior. Antes se comprueba que la categoria nueva no exista:
+* El método `updateCategoriaTask` llama al método anterior. Antes se comprueba que la categoría nueva no exista:
 ``` scala
 def updateCategoriaTask(usuario: String) = Action { implicit request =>
    taskUpdateForm.bindFromRequest.fold(
@@ -485,7 +493,7 @@ def updateCategoriaTask(usuario: String) = Action { implicit request =>
       update => {
          if(User.comprobarUsuario(usuario)){
             if(Categoria.comprobarCategoria(usuario,update._2)){
-               if(Task.modificarCategoria(usuario,update._2,update._1)){
+               if(Task.updateCategoria(usuario,update._2,update._1)){
                   Ok("La tarea "+update._1+" del usuario "+usuario+" se ha trasladado a la categoria "+update._2+" correctamente")
                } else {
                   NotFound(errores("Error 404: La tarea con el id "+update._1+" no existe para el usuario "+usuario)).as("text/html")
@@ -514,29 +522,29 @@ POST /categorias/update/tasks
 ```
 La tarea {id} del usuario {usuario} se ha trasladado a la categoria {categoria} correctamente
 ```
-* Si no hay ninguna categoria que concuerde o el usuario o el id no existen se devolverá el `ERROR 404`:
+* Si no hay ninguna categoría que concuerde o el usuario o el id no existen se devolverá el `ERROR 404`:
 ```
 Error 404: La tarea con el id {id} no existe para el usuario {usuario}
 Error 404: La categoria {categoria} no existe
 Error 404: El usuario {usuario} no existe
 ```
 
-### 9. Borrar la categoria de una tarea
+### 9. Borrar la categoría de una tarea
 
 #### 9.1 Implementación
-* Para borrar la categoria se utiliza el método `modificarCategoria` de la clase `Task`, que devuelva si se ha podido modificar o no la categoria a **NULL**:
+* Para borrar la categoria se utiliza el método `updateCategoria` de la clase `Task`, que devuelva si se ha podido modificar o no la categoría a **NULL**:
 ``` scala
-def modificarCategoria(usuario: String, nuevaCategoria: String, id: Long) : Boolean = (1 == DB.withConnection{
+def updateCategoria(usuario: String, nuevaCategoria: String, id: Long) : Boolean = (1 == DB.withConnection{
    implicit c => SQL("update task set categoria = {categoria} where usuario = {usuario} and id = {id}")
       .on("usuario" -> usuario, "categoria" -> nuevaCategoria, "id" -> id).executeUpdate()
 })
 ```
-* El método `updateCategoriaTask` llama al método anterior. Antes se comprueba que la categoria nueva no exista:
+* El método `updateCategoriaTask` llama al método anterior. Antes se comprueba que la categoría nueva no exista:
 ``` scala
 def deleteCategoriaTask(usuario: String, id: Long) = Action {
    if(User.comprobarUsuario(usuario)){
       if(None != Task.read(usuario,id)){
-         Task.modificarCategoria(usuario,null,id)
+         Task.updateCategoria(usuario,null,id)
          Ok("La tarea "+id+" se le ha borrado la categoria correctamente")
       } else {
          NotFound(errores("Error 404: La tarea con el identificador "+id+" no existe en el usuario "+usuario)).as("text/html")
@@ -558,7 +566,7 @@ DELETE /{usuario}/tasks/{id}/deleteCategoria
 ```
 * Cuando se hayan borrado correctamente se mostrara el siguiente mensaje:
 ```
-La tarea {id} se le ha borrado la categoria correctamente
+La tarea {id} se le ha borrado la categoría correctamente
 ```
 * Si el usuario o el id no existen se devolverá el `ERROR 404`:
 ```
@@ -570,28 +578,27 @@ Error 404: El usuario {usuario} no existe
 
 ### 1. Test Feature 1
 
-Aqui se describen los tests para la primera feature.
+Aquí se describen los test para la primera feature.
 
 #### 1.1 Test en el modelo
 
-Todos los tests para comprobar que el modelo de datos funcione correctamente.
-Se utilizan las siguientes variables en los tests:
+Todos los test para comprobar que el modelo de datos funcione correctamente.
+Se utilizan las siguientes variables en los test:
 ```
 val label = "Tarea test"
 val nombreUsuario = "Test"
-val nombreNuevoUsuario = "Nuevo test"
 ```
 
 ##### 1.1.1 Crear una tarea
 
-* Se comprueba si se puede crear una tarea correctamente. Aparte tambien se comprueba si introduces el usuario incorrectamente.
-* El `label` puede ser **null** ya que tal y como esta definido en la base de datos puede serlo. Por esta razon no se comprueba.
-* Es necesario generar un usuario nuevo aunque en esta feature no esten definidos.
+* Se comprueba si se puede crear una tarea correctamente. Aparte también se comprueba si introduces el usuario incorrectamente.
+* El `label` puede ser **null** ya que tal y como esta definido en la base de datos puede serlo. Por esta razón no se comprueba.
+* Es necesario generar un usuario nuevo aunque en esta feature no estén definidos.
 * El código del test es siguiente:
 ```
 "crear tarea" in {  
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-      User.crearUser(nombreUsuario)
+      User.create(nombreUsuario)
       val idTest = Task.create(label,nombreUsuario,null)
       idTest must be_>(0L)
 
@@ -603,12 +610,12 @@ val nombreNuevoUsuario = "Nuevo test"
 
 ##### 1.1.2 Todas las tareas
 
-* Se comprueba si se listan correctamente todas las tareas de un usuario. Tambien se comprueba si el usuario no existe.
+* Se comprueba si se listan correctamente todas las tareas de un usuario. También se comprueba si el usuario no existe.
 * El código del test es siguiente:
 ```
 "todas las tareas" in {
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-      User.crearUser(nombreUsuario)
+      User.create(nombreUsuario)
 
       Task.all(nombreUsuario) must be empty
 
@@ -626,13 +633,13 @@ val nombreNuevoUsuario = "Nuevo test"
 
 ##### 1.1.3 Una tarea concreta
 
-* Se comprueba si se encuentra una tarea para un usuario. Tambien se comprueba si el usuario no existe o el id de la tarea a buscar tampoco.
+* Se comprueba si se encuentra una tarea para un usuario. También se comprueba si el usuario no existe o el id de la tarea a buscar tampoco.
 * El código del test es siguiente:
 ```
 "una tarea concreta" in {
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       // Primero creamos una tarea de prueba
-      User.crearUser(nombreUsuario)
+      User.create(nombreUsuario)
       val idTest = Task.create(label,nombreUsuario,null)
 
       // Comprobamos la tarea
@@ -659,7 +666,7 @@ val nombreNuevoUsuario = "Nuevo test"
 "borrado de una tarea" in {
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       // Primero creamos una tarea de prueba
-      User.crearUser(nombreUsuario)
+      User.create(nombreUsuario)
       var idTest = Task.create(label,nombreUsuario,null)
 
       // Borramos la tarea creada
@@ -690,7 +697,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 * Comprobamos cuando una ruta se introduce incorrectamente:
 ```
- "devolver 404 en una ruta incorrecta" in {  
+"devolver 404 en una ruta incorrecta" in {  
    running(FakeApplication()) {  
       route(FakeRequest(GET, "/incorrecto")) must beNone  
    }
@@ -725,7 +732,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 1.2.3 Una tarea concreta
 
-* Comprobamos una tarea concreta. Tambien comprobamos que la tarea no exista:
+* Comprobamos una tarea concreta. También comprobamos que la tarea no exista:
 ```
 "una tarea concreta" in {
    running(FakeApplication()) {
@@ -746,7 +753,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 1.2.4 Crear una tarea
 
-* Comprobamos la creacion de una tarea. Comprobamos si no se introducen los parametros en el formulario HTML correctamente:
+* Comprobamos la creación de una tarea. Comprobamos si no se introducen los parámetros en el formulario HTML correctamente:
 ```
 "crear una tarea" in {
    running(FakeApplication()) {
@@ -767,7 +774,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 1.2.5 Borrado de una tarea
 
-* Comprobamos que se borre correctamente. Tambien se comprueba si la tarea no existe:
+* Comprobamos que se borre correctamente. También se comprueba si la tarea no existe:
 ```
 "borrado de una tarea" in {
    running(FakeApplication()) {
@@ -788,11 +795,19 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ### 2. Test Feature 2
 
+Aquí se describen los test para la segunda feature.
+
 #### 2.1 Test en el modelo
+
+Todos los test para comprobar que el modelo de datos funcione correctamente.
+Se utilizan las siguientes variables en los test:
+```
+val nombreNuevoUsuario = "Nuevo test"
+```
 
 ##### 2.1.1 Crear un usuario
 
-* Se comprueba si se crean nuevos usuarios. Tambien se comprueba si ya existe.
+* Se comprueba si se crean nuevos usuarios. También se comprueba si ya existe.
 * El código del test es siguiente:
 ```
 "crear usuarios" in {  
@@ -800,24 +815,24 @@ Todos los tests para comprobar que el controlador funcione correctamente.
       // LLamamos al modelo para crear un usuario
       // Comprobamos que se haya creado correctamente
 
-      val idTest = User.crearUser(nombreUsuario)
+      val idTest = User.create(nombreUsuario)
       idTest must beSome
 
       // Probamos a volver a crearlo para comprobar que no se puede crear
-      User.crearUser(nombreUsuario) must throwA[JdbcSQLException]
+      User.create(nombreUsuario) must throwA[JdbcSQLException]
    }
 }
 ```
 
 ##### 2.1.2 Leer un usuario
 
-* Se comprueba la lectura de un usuario. Tambien se comprueba si el usuario no existe.
+* Se comprueba la lectura de un usuario. También se comprueba si el usuario no existe.
 * El código del test es siguiente:
 ```
 "extraer usuarios" in {
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       // Primero creamos el usuario
-      val idTest = User.crearUser(nombreUsuario)
+      val idTest = User.create(nombreUsuario)
       idTest must beSome
 
       // LLamamos al modelo para leer un usuario
@@ -843,7 +858,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 "todos los usuarios" in {
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       // Primero creamos el usuario
-      val idTest = User.crearUser(nombreUsuario)
+      val idTest = User.create(nombreUsuario)
       idTest must beSome
 
       // LLamamos al modelo para leer todos los usuarios
@@ -856,24 +871,24 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 2.1.4 Modificar un usuario
 
-* Se comprueba si se modifica el nombre del usuario. Tambien se comprueba si no existe.
+* Se comprueba si se modifica el nombre del usuario. También se comprueba si no existe.
 * El código del test es siguiente:
 ```
 "modificar usuarios" in {
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       // Primero creamos el usuario
-      val idTest = User.crearUser(nombreUsuario)
+      val idTest = User.create(nombreUsuario)
       idTest must beSome
 
       // Llamamos al modelo para modificarlo
       // Comprobamos el nuevo valor
 
-      val result = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+      val result = User.update(nombreUsuario,nombreNuevoUsuario)
       result must beTrue
 
       // Repetimos para comprobar que no lo encuentra
       // y por lo tanto no puede modificarlo
-      val result2 = User.modificarUser(nombreUsuario,nombreNuevoUsuario)
+      val result2 = User.update(nombreUsuario,nombreNuevoUsuario)
       result2 must beFalse
    }
 }
@@ -881,27 +896,35 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 2.1.5 Borrar un usuario
 
-* Se comprueba si se puede borrar un usuario. Tambien se comprueba si no existe.
+* Se comprueba si se puede borrar un usuario. También se comprueba si no existe.
 * El código del test es siguiente:
 ```
 "borrar usuarios" in {
    running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       //Primero creamos un usuario
-      val idTest = User.crearUser(nombreUsuario)
+      val idTest = User.create(nombreUsuario)
       idTest must beSome
 
       //Probamos a borrarlo
 
-      val result = User.borrarUser(nombreUsuario)
+      val result = User.delete(nombreUsuario)
       result must beTrue
 
       //Repetimos y da error
-      val result2 = User.borrarUser(nombreUsuario)
+      val result2 = User.delete(nombreUsuario)
       result2 must beFalse
    }
 }
-``` 
+```
+
 #### 2.2 Test en el controlador
+
+Todos los test para comprobar que el controlador funcione correctamente.
+Para los test se utilizan las siguientes variables:
+```
+val usuarioTest="Test"
+val usuarioIncorrecto="Error"
+```
 
 ##### 2.2.1 Todos las tareas de un usuario
 
@@ -910,7 +933,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 "todas las tareas de un usuario" in {
    running(FakeApplication()) {
       // Se comprueba en otros test esta funcionalidad
-      User.crearUser(usuarioTest)
+      User.create(usuarioTest)
       val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks"))
 
       status(pag) must equalTo(OK)  
@@ -929,12 +952,12 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 2.2.2 Crear una tarea para un usuario
 
-* Comprobamos la creacion de una tarea. Comprobamos si no se introducen los parametros en el formulario HTML correctamente:
+* Comprobamos la creación de una tarea. Comprobamos si no se introducen los parámetros en el formulario HTML correctamente:
 ```
 "crear una tarea para un usuario" in {
    running(FakeApplication()) {
       // Se comprueba en otros test esta funcionalidad
-      User.crearUser(usuarioTest)
+      User.create(usuarioTest)
       val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
       status(form) must equalTo(CREATED)
@@ -953,12 +976,12 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 2.2.3 Una tarea de un usuario
 
-* Comprobamos una tarea concreta. Tambien comprobamos que la tarea no exista:
+* Comprobamos una tarea concreta. También comprobamos que la tarea no exista:
 ```
 "una tarea concreta para un usuario" in {
    running(FakeApplication()) {
       // Se comprueba en otros test esta funcionalidad
-      User.crearUser(usuarioTest)
+      User.create(usuarioTest)
       val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
       val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/tasks/4"))
@@ -978,12 +1001,12 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 2.2.4 Borrado de una tarea de un usuario
 
-* Comprobamos que se borre correctamente. Tambien se comprueba si la tarea no existe:
+* Comprobamos que se borre correctamente. También se comprueba si la tarea no existe:
 ```
 "borrado de una tarea de un usuario" in {
    running(FakeApplication()) {
       // Se comprueba en otros test esta funcionalidad
-      User.crearUser(usuarioTest)
+      User.create(usuarioTest)
       val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").withFormUrlEncodedBody(("label","Test")))
 
       val Some(del) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/4"))
@@ -1003,7 +1026,16 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ### 3. Test Feature 3
 
+Aquí se describen los test para la tercera feature.
+
 #### 3.1 Test en el modelo
+
+Todos los test para comprobar que el modelo de datos funcione correctamente.
+Se utilizan las siguientes variables en los test:
+```
+val fecha:Option[Date] = Some(new Date)
+val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+```
 
 ##### 3.1.1 Crear una tarea con fecha
 
@@ -1015,7 +1047,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
       // LLamamos al modelo para crear una tarea
       // Comprobamos que se haya creado correctamente
 
-      User.crearUser(nombreUsuario)
+      User.create(nombreUsuario)
       val idTest = Task.create(label,nombreUsuario,fecha)
       idTest must be_>(0L)
       val task = Task.read(nombreUsuario,idTest)
@@ -1034,7 +1066,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
       // LLamamos al modelo para crear una tarea
       // Comprobamos que se haya creado correctamente
 
-      User.crearUser(nombreUsuario)
+      User.create(nombreUsuario)
       val idTest = Task.create(label,nombreUsuario,fecha)
 
       val result = Task.deleteDate(nombreUsuario,fecha.get)
@@ -1057,7 +1089,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
       // LLamamos al modelo para crear una tarea
       // Comprobamos que se haya creado correctamente
 
-      User.crearUser(nombreUsuario)
+      User.create(nombreUsuario)
 
       Task.all(nombreUsuario,fecha.get) must be empty
 
@@ -1074,6 +1106,13 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 #### 3.2 Test en el controlador
 
+Todos los test para comprobar que el controlador funcione correctamente.
+Para los test se utilizan las siguientes variables:
+```
+val fecha="24-10-2014"
+val fechaIncorrecta="24-10"
+```
+
 ##### 3.2.1 Crear una tarea con fecha
 
 * Creamos una tarea con una fecha. Comprobamos si se introduce una fecha en un formato incorrecto:
@@ -1081,7 +1120,7 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 "crear una tarea con fecha" in {
    running(FakeApplication()) {
       // Se comprueba en otros test esta funcionalidad
-      User.crearUser(usuarioTest)
+      User.create(usuarioTest)
       val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
          withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
 
@@ -1106,12 +1145,12 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 3.2.2 Borrado de tareas por fecha
 
-* Se comprueba que se borren las tareas. Tambien se comprueba si el usuario no existe o la fecha no tiene el formato correcto:
+* Se comprueba que se borren las tareas. También se comprueba si el usuario no existe o la fecha no tiene el formato correcto:
 ```
 "borrado de tareas por fecha" in {
    running(FakeApplication()) {
       // Se comprueba en otros test esta funcionalidad
-      User.crearUser(usuarioTest)
+      User.create(usuarioTest)
       val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
          withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
       val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
@@ -1144,11 +1183,11 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 
 ##### 3.2.3 Mostrar tareas por fecha
 
-* Comprobamos que se devuelve el **json** correctamente. Tambien se comprueba si el usuario no existe o la fecha no tiene el formato correcto:
+* Comprobamos que se devuelve el **json** correctamente. También se comprueba si el usuario no existe o la fecha no tiene el formato correcto:
 ```
 "mostrar tareas por fecha" in {
    running(FakeApplication()) {
-      User.crearUser(usuarioTest)
+      User.create(usuarioTest)
       val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
          withFormUrlEncodedBody(("label","Test"),("fechaFin",fecha)))
       val Some(form2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks").
@@ -1178,8 +1217,514 @@ Todos los tests para comprobar que el controlador funcione correctamente.
 }
 ```
 
+### 4. Test Feature 4
+
+Aquí se describen los test para la cuarta feature.
+
+#### 4.1 Test en el modelo
+
+Todos los test para comprobar que el modelo de datos funcione correctamente.
+Se utilizan las siguientes variables en los test:
+```
+val nombreCategoria = "CategoriaTest"
+val nombreNuevoCategoria = "NuevaCategoriaTest"
+```
+
+##### 4.1.1 Crear una categoría
+
+* Comprobamos el crear una categoría. También se comprueba si ya existía o el usuario no existe.
+* El código del test es siguiente:
+```
+"crear categoria" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      User.create(nombreUsuario)
+      val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+      cat must be_>(0)
+
+      // Probamos a crear una cateogria sin usuario null
+      Categoria.create(null,nombreCategoria) must throwA[JdbcSQLException]
+
+      //Probamos a crear una categoria que ya existe
+      Categoria.create(nombreUsuario,nombreCategoria) must throwA[JdbcSQLException]
+   }
+}
+```
+
+##### 4.1.2 Mostrar las categorías de un usuario
+
+* Comprobamos si se muestran todas las categorías de un usuario.
+* El código del test es siguiente:
+```
+"mostrar categorias" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      User.create(nombreUsuario)
+      val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+      val cats = Categoria.all(nombreUsuario)
+      cats must be have size(1)
+      cats(0).usuario must_== nombreUsuario
+      cats(0).nombreCategoria must_== nombreCategoria
+
+      // Probamos a listar una tarea sin usuario ""
+      Categoria.all("") must be empty
+   }
+}
+```
+
+##### 4.1.3 Modificar el nombre de una categoría
+
+* Se comprueba que se modifica el nombre de una categoría. También se comprueba si ya existía la categoría a la que se va a modificar.
+* El código del test es siguiente:
+```
+"modificar categoria" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      User.create(nombreUsuario)
+      val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+      val ok = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
+      ok must beTrue
+
+      val error = Categoria.update(nombreUsuario,nombreCategoria,nombreNuevoCategoria)
+      error must beFalse
+   }
+}
+```
+
+##### 4.1.4 Borrar una categoría
+
+* Se comprueba que se borra una categoría. También se comprueba si la categoría no existe.
+* El código del test es siguiente:
+```
+"borrar categoria" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      User.create(nombreUsuario)
+      val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+      val ok = Categoria.delete(nombreUsuario,nombreCategoria)
+      ok must beTrue
+
+      val error = Categoria.delete(nombreUsuario,nombreCategoria)
+      error must beFalse
+   }
+}
+```
+
+##### 4.1.5 Añadir una tarea con categoría
+
+* Se comprueba que se crea una tarea dentro de una categoría. También se comprueba si la categoría no existe.
+* El código del test es siguiente:
+```
+"añadir tareas a categoria" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      User.create(nombreUsuario)
+      val cat = Categoria.create(nombreUsuario,nombreCategoria)
+
+      val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
+      idTest must be_>(0L)
+
+      // Probamos a crear una tarea sin categoria null
+      Task.create(label,nombreUsuario,None) must be_>(0L)
+
+      // Probamos a crear una tarea con una categoria que no existe
+      Task.create(label,nombreUsuario,None,Some(nombreNuevoCategoria)) must throwA[JdbcSQLException]
+   }
+}
+```
+
+##### 4.1.6 Mostrar las tareas de una categoría
+
+* Se comprueba que se muestran las tareas de la categoría. También se comprueba si la categoría no existe.
+* El código del test es siguiente:
+```
+"mostrar todas las tareas de una categoria" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      User.create(nombreUsuario)
+      val cat = Categoria.create(nombreUsuario,nombreCategoria)
+      val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
+
+      val tareas = Task.all(nombreUsuario,nombreCategoria)
+      tareas must be have size(1)
+      tareas(0).id must_== idTest
+      tareas(0).label must_== label
+
+      // Probamos a listar una tarea sin usuario ""
+      Task.all(nombreUsuario,"") must be empty
+   }
+}
+```
+
+##### 4.1.7 Borrar tareas de una categoría
+
+* Se comprueba que se borra las tareas de una categoría.
+* El código del test es siguiente:
+```
+"quitar tareas de una categoria" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      User.create(nombreUsuario)
+      val cat = Categoria.create(nombreUsuario,nombreCategoria)
+      val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
+
+      val ok = Task.deleteCategoria(nombreUsuario,nombreCategoria)
+      ok  must equalTo(1)
+
+      val error = Task.deleteCategoria(nombreUsuario,nombreCategoria)
+      error must equalTo(0)
+   }
+}
+```
+
+##### 4.1.8 Modificar la categoría de una tarea
+
+* Se comprueba que si se modifica la categoría de la tarea. También se comprueba si la categoría nueva no existe.
+* El código del test es siguiente:
+```
+"modificar la categoria de una tarea" in {
+   running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+      User.create(nombreUsuario)
+      Categoria.create(nombreUsuario,nombreCategoria)
+      Categoria.create(nombreUsuario,nombreNuevoCategoria)
+      val idTest = Task.create(label,nombreUsuario,None,Some(nombreCategoria))
+
+      val ok = Task.updateCategoria(nombreUsuario,nombreNuevoCategoria,idTest)
+      ok must beTrue
+
+      Task.updateCategoria(nombreUsuario,"noExiste",idTest) must throwA[JdbcSQLException]
+   }
+}
+```
+
+#### 4.2 Test en el controlador
+
+Todos los test para comprobar que el controlador funcione correctamente.
+Para los test se utilizan las siguientes variables:
+```
+val categoriaTest="CategoriaTest"
+val categoriaNuevaTest="CategoriaNuevaTest"
+val categoriaIncorrectaTest="CategoriaIncorrectaTest"
+```
+
+##### 4.2.1 Todas las tareas de un usuario
+
+* Comprobamos que devuelve una lista en **JSON**. También se comprueba si el usuario no existe:
+```
+"todas las categorias de un usuario" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias"))
+
+      status(pag) must equalTo(OK)
+      contentType(pag) must beSome.which(_ == "application/json")
+      contentAsString(pag) must contain (usuarioTest)
+
+      // Usuario incorrecto
+      val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/categorias"))
+
+      status(error) must equalTo(NOT_FOUND)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("404")
+   }
+}
+```
+
+##### 4.2.2 Crear una categoría
+
+* Creamos una categoría. También comprobamos todos los posibles errores:
+```
+"crear una categoria de un usuario" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias")
+         .withFormUrlEncodedBody(("categoria",categoriaTest)))
+
+      status (form) must equalTo(CREATED)
+      contentType(form) must beSome.which(_ == "application/json")
+      contentAsString(form) must contain (usuarioTest)
+      contentAsString(form) must contain (categoriaTest)
+
+      // El formulario esta mal introducido
+      val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias").withFormUrlEncodedBody())
+      status(error) must equalTo(BAD_REQUEST)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("400")
+
+      // El usuario no existe
+      val Some(error2) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/categorias")
+         .withFormUrlEncodedBody(("categoria",categoriaTest)))
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error2) must beSome.which(_ == "text/html")
+      contentAsString(error2) must contain("404")
+
+      // Repetir nombre de la categoria
+      val Some(error3) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias")
+         .withFormUrlEncodedBody(("categoria",categoriaTest)))
+      status(error3) must equalTo(BAD_REQUEST)
+      contentType(error3) must beSome.which(_ == "text/html")
+      contentAsString(error3) must contain("400")
+   }
+}
+```
+
+##### 4.2.3 Actualizar el nombre de una categoría
+
+* Actualizamos el nombre una categoría. También comprobamos todos los posibles errores:
+```
+"actualizar nombre de una categoria" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      Categoria.create(usuarioTest,categoriaTest)
+      Task.create("Test",usuarioTest,None,Some(categoriaTest))
+
+      val Some(update) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
+         .withFormUrlEncodedBody(("categoriaAnt",categoriaTest),("categoriaNueva",categoriaNuevaTest)))
+
+      status(update) must equalTo(OK)
+      contentType(update) must beSome.which(_ == "text/plain")
+      contentAsString(update) must contain ("correctamente")
+
+      // El formulario esta mal introducido
+      val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update").withFormUrlEncodedBody())
+      status(error) must equalTo(BAD_REQUEST)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("400")
+
+      // El usuario no existe
+      val Some(error2) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/categorias/update")
+         .withFormUrlEncodedBody(("categoriaAnt",categoriaTest),("categoriaNueva",categoriaNuevaTest)))
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error2) must beSome.which(_ == "text/html")
+      contentAsString(error2) must contain("404")
+
+      // No existe la categoria a modificar
+      val Some(error3) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
+         .withFormUrlEncodedBody(("categoriaAnt",categoriaTest),("categoriaNueva",categoriaTest)))
+      status(error3) must equalTo(NOT_FOUND)
+      contentType(error3) must beSome.which(_ == "text/html")
+      contentAsString(error3) must contain("404")
+
+      // Ya existe el nombre nuevo categoria a modificar
+      Categoria.create(usuarioTest,categoriaTest)
+      val Some(error4) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update")
+         .withFormUrlEncodedBody(("categoriaAnt",categoriaNuevaTest),("categoriaNueva",categoriaTest)))
+      status(error4) must equalTo(BAD_REQUEST)
+      contentType(error4) must beSome.which(_ == "text/html")
+      contentAsString(error4) must contain("400")
+   }
+}
+```
+
+##### 4.2.4 Borrar una categoría
+
+* Borramos una categoría. También comprobamos todos los posibles errores:
+```
+"borrar una categoria" in{
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      Categoria.create(usuarioTest,categoriaTest)
+      Task.create("Test",usuarioTest,None,Some(categoriaTest))
+
+      val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaTest))
+
+      status(delete) must equalTo(OK)
+      contentType(delete) must beSome.which(_ == "text/plain")
+      contentAsString(delete) must contain ("correctamente")
+
+      // El usuario no existe
+      val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest))
+      status(error) must equalTo(NOT_FOUND)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("404")
+
+      // No existe la categoria a modificar
+      val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaNuevaTest))
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error2) must beSome.which(_ == "text/html")
+      contentAsString(error2) must contain("404")
+   }
+}
+```
+
+##### 4.2.5 Crear una tarea con una categoría
+
+* Crear una tarea con una categoría. También comprobamos todos los posibles errores:
+```
+"añadir una tarea a una categoria" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      Categoria.create(usuarioTest,categoriaTest)
+
+      val Some(form) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks")
+         .withFormUrlEncodedBody(("label","Test"),("categoria",categoriaTest)))
+
+      status(form) must equalTo(CREATED)
+      contentType(form) must beSome.which(_ == "application/json")
+      contentAsString(form) must contain ("\"label\":\"Test\"")
+
+      // El formulario esta mal introducido
+      val Some(error) = route(FakeRequest(POST,"/tasks").withFormUrlEncodedBody())
+      status(error) must equalTo(BAD_REQUEST)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("400")
+
+      val Some(error2) = route(FakeRequest(POST,"/"+usuarioTest+"/tasks")
+         .withFormUrlEncodedBody(("label","Test"),("categoria",categoriaIncorrectaTest)))
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("404")
+   }
+}
+```
+
+##### 4.2.6 Mostrar todas las tareas de una categoría
+
+* Muestra las tareas de una categoría. También comprobamos todos los posibles errores:
+```
+"mostrar tareas de una categoria" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      Categoria.create(usuarioTest,categoriaTest)
+      Task.create("Test",usuarioTest,None,Some(categoriaTest))
+
+      val Some(pag) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias/"+categoriaTest+"/tasks"))
+
+      status(pag) must equalTo(OK)
+      contentType(pag) must beSome.which(_ == "application/json")
+      contentAsString(pag) must contain("Test")
+
+       //Comprobamos un usuario que no exista
+      val Some(error) = route(FakeRequest(GET,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest+"/tasks"))
+
+      status(error) must equalTo(NOT_FOUND)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("404")
+
+       //Comprobamos una categoria que no exista
+      val Some(error2) = route(FakeRequest(GET,"/"+usuarioTest+"/categorias/"+categoriaNuevaTest+"/tasks"))
+
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error2) must beSome.which(_ == "text/html")
+      contentAsString(error2) must contain("404")
+   }
+}
+```
+
+##### 4.2.7 Borrar todas las tareas de una categoría
+
+* Borra las tareas de una categoría. También comprobamos todos los posibles errores:
+```
+"quitar todas las tareas de una categoria" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      Categoria.create(usuarioTest,categoriaTest)
+      Task.create("Test",usuarioTest,None,Some(categoriaTest))
+
+      val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaTest+"/tasks"))
+
+      status(delete) must equalTo(OK)
+      contentType(delete) must beSome.which(_ == "text/plain")
+      contentAsString(delete) must contain (categoriaTest)
+      contentAsString(delete) must contain ("Total: 1")
+
+      // El usuario no existe
+      val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/categorias/"+categoriaTest+"/tasks"))
+      status(error) must equalTo(NOT_FOUND)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("404")
+
+      // No existe la categoria a modificar
+      val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/categorias/"+categoriaNuevaTest+"/tasks"))
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error2) must beSome.which(_ == "text/html")
+      contentAsString(error2) must contain("404")
+   }
+}
+```
+
+##### 4.2.8 Modificar la categoría de una tarea
+
+* Modifica la categoría de una tarea. También comprobamos todos los posibles errores:
+```
+"modificar la categoria de una tarea" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      Categoria.create(usuarioTest,categoriaTest)
+      Categoria.create(usuarioTest,categoriaNuevaTest)
+      val idTest = Task.create("Test",usuarioTest,None,Some(categoriaTest))
+
+      val Some(update) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
+         .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaNuevaTest)))
+
+      status(update) must equalTo(OK)
+      contentType(update) must beSome.which(_ == "text/plain")
+      contentAsString(update) must contain ("correctamente")
+
+      // El formulario esta mal introducido
+      val Some(error) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks").withFormUrlEncodedBody())
+      status(error) must equalTo(BAD_REQUEST)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("400")
+
+      // El usuario no existe
+      val Some(error2) = route(FakeRequest(POST,"/"+usuarioIncorrecto+"/categorias/update/tasks")
+         .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaNuevaTest)))
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error2) must beSome.which(_ == "text/html")
+      contentAsString(error2) must contain("404")
+
+      // No existe el id de la tarea
+      val Some(error3) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
+         .withFormUrlEncodedBody(("id","9999"),("categoriaNueva",categoriaTest)))
+      status(error3) must equalTo(NOT_FOUND)
+      contentType(error3) must beSome.which(_ == "text/html")
+      contentAsString(error3) must contain("404")
+
+      // La categoria nueva no pertenece a ese usuario
+      User.create(usuarioIncorrecto)
+      Categoria.create(usuarioIncorrecto,categoriaIncorrectaTest)
+      val Some(error5) = route(FakeRequest(POST,"/"+usuarioTest+"/categorias/update/tasks")
+         .withFormUrlEncodedBody(("id",""+idTest),("categoriaNueva",categoriaIncorrectaTest)))
+      status(error5) must equalTo(NOT_FOUND)
+      contentType(error5) must beSome.which(_ == "text/html")
+      contentAsString(error5) must contain("404")
+   }
+}
+```
+
+##### 4.2.9 Borrar la categoría de una tarea
+
+* Borra la categoría de una tarea. También comprobamos todos los posibles errores:
+```
+"borrar la categoria de una tarea" in {
+   running(FakeApplication()) {
+      User.create(usuarioTest)
+      Categoria.create(usuarioTest,categoriaTest)
+      val idTest = Task.create("Test",usuarioTest,None,Some(categoriaTest))
+
+      val Some(delete) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/"+idTest+"/deleteCategoria"))
+
+      status(delete) must equalTo(OK)
+      contentType(delete) must beSome.which(_ == "text/plain")
+      contentAsString(delete) must contain (""+idTest)
+
+      // El usuario no existe
+      val Some(error) = route(FakeRequest(DELETE,"/"+usuarioIncorrecto+"/tasks/"+idTest+"/deleteCategoria"))
+      status(error) must equalTo(NOT_FOUND)
+      contentType(error) must beSome.which(_ == "text/html")
+      contentAsString(error) must contain("404")
+
+      // No existe la tarea a modificar
+      val Some(error2) = route(FakeRequest(DELETE,"/"+usuarioTest+"/tasks/9999/deleteCategoria"))
+      status(error2) must equalTo(NOT_FOUND)
+      contentType(error2) must beSome.which(_ == "text/html")
+      contentAsString(error2) must contain("404")
+   }
+}
+```
 
 ## III. Repositorios
+
+### GitHub
+- Enlace a [GitHub](https://github.com/JoseVte/play-todolist)
 
 ### Bitbucket
 - Enlace a [Bitbucket](https://bitbucket.org/JoseVte/play-todolist)
